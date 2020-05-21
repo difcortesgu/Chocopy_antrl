@@ -8,7 +8,7 @@ literal --> None
 literal --> True
 literal --> False
 literal --> INTEGER
-literal --> IDSTRING #por implementar
+literal --> IDSTRING
 literal --> STRING
 
 bin_op --> +

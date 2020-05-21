@@ -93,11 +93,11 @@ tokens { INDENT, DEDENT }
 
 program : (var_def | func_def | class_def )* stmt*;
 
-class_def : 'class' ID '(' ID ')' ':' NEWLINE INDENT class_body DEDENT;
+class_def : 'class' ID PAR_IZQ ID PAR_DER ':' NEWLINE INDENT class_body DEDENT;
 
 class_body : 'pass' NEWLINE | (var_def | func_def)+;
 
-func_def : 'def' ID '(' (typed_var (',' typed_var)*)? ')' ('->' type)? ':' NEWLINE INDENT func_body DEDENT;
+func_def : 'def' ID PAR_IZQ (typed_var (',' typed_var)*)? PAR_DER ('->' type)? ':' NEWLINE INDENT func_body DEDENT;
 
 func_body : (global_decl | nonlocal_decl | var_def | func_def )* stmt+;
 
@@ -105,7 +105,7 @@ typed_var : ID ':' type;
 
 type : ID
     | IDSTRING
-    | '[' type ']';
+    | COR_IZQ type COR_DER;
 
 global_decl : 'global' ID NEWLINE;
 
@@ -122,7 +122,7 @@ simple_stmt : 'pass'
     | expr
     | 'return' expr?
     | (target '=')+ expr
-    | 'print' '(' expr ')';
+    | 'print' PAR_IZQ expr PAR_DER;
 
 block : NEWLINE INDENT stmt+ DEDENT;
 
@@ -134,25 +134,27 @@ literal : 'None'
     | STRING;
 
 expr : cexpr
-    | 'not' expr
-    | expr ('and' | 'or') expr
-    | expr 'if' expr 'else' expr
-    | 'len' '(' expr ')'
-    | 'input' '(' ')';
+    | NOT expr
+    | expr (AND | OR) expr
+    | expr IF expr ELSE expr
+    | LEN PAR_IZQ expr PAR_DER
+    | INPUT PAR_IZQ PAR_DER
+    ;
 
 cexpr : ID
     | literal
-    | '[' (expr (',' expr)*)? ']'
-    | '(' expr ')'
-    | cexpr '.' ID
-    | cexpr '[' expr ']'
-    | cexpr '.' ID '(' (expr (',' expr)*)? ')'
-    | ID '(' (expr (',' expr)*)? ')'
+    | COR_IZQ (expr (COMMA expr)*)? COR_DER
+    | PAR_IZQ expr PAR_DER
+    | cexpr PUNTO ID
+    | cexpr COR_IZQ expr COR_DER
+    | cexpr PUNTO ID PAR_IZQ (expr (',' expr)*)? PAR_DER
+    | ID PAR_IZQ (expr (',' expr)*)? PAR_DER
     | cexpr bin_op cexpr
-    | '-' cexpr;
+    | MENOS cexpr
+    ;
 
 bin_op : '+'
-    | '-'
+    | MENOS
     | '*'
     | '//'
     | '%'
@@ -165,8 +167,29 @@ bin_op : '+'
     | 'is';
 
 target : ID
-    | cexpr '.' ID
-    | cexpr '[' expr ']';
+    | cexpr PUNTO ID
+    | cexpr COR_IZQ expr COR_DER;
+
+
+NOT : 'not';
+AND : 'and';
+OR : 'or';
+IF : 'if';
+ELSE : 'else';
+INPUT : 'input';
+PAR_IZQ : '(';
+PAR_DER : ')';
+LEN : 'len';
+COMMA : ',';
+COR_IZQ : '[';
+COR_DER : ']';
+PUNTO : '.';
+MENOS : '-';
+
+INTEGER : [1-9][0-9]* | '0';
+ID 		: [a-zA-Z][a-zA-Z0-9_]* ;
+IDSTRING: '"'[a-zA-Z][a-zA-Z0-9_]*'"' ;
+STRING: '"'[a-zA-Z0-9_]*'"' ;
 
 LINE_COMMENT 	: '#' ~[\r\n]* -> skip ;
 fragment SPACES
@@ -183,10 +206,6 @@ fragment LINE_JOINING
 SKIP_
  : ( SPACES | COMMENT | LINE_JOINING ) -> skip
  ;
-INTEGER : [1-9][0-9]* | '0';
-ID 		: [a-zA-Z][a-zA-Z0-9_]* ;
-IDSTRING: '"'[a-zA-Z][a-zA-Z0-9_]*'"' ;
-STRING: '"'[a-zA-Z0-9_]*'"' ;
 NEWLINE
  : ( {atStartOfInput()}?   SPACES
    | ( '\r'? '\n' | '\r' | '\f' ) SPACES?

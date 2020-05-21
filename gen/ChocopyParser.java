@@ -1,4 +1,4 @@
-// Generated from C:/Users/diego/IdeaProjects/Chocopy_Interpreter/grammar\Chocopy.g4 by ANTLR 4.8
+// Generated from C:/Users/diego/Documents/Lenguajes/Chocopy_antrl/grammar\Chocopy.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
@@ -19,10 +19,10 @@ public class ChocopyParser extends Parser {
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
 		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17, 
 		T__17=18, T__18=19, T__19=20, T__20=21, T__21=22, T__22=23, T__23=24, 
-		T__24=25, T__25=26, T__26=27, T__27=28, T__28=29, T__29=30, T__30=31, 
-		T__31=32, T__32=33, T__33=34, T__34=35, T__35=36, T__36=37, T__37=38, 
-		T__38=39, T__39=40, T__40=41, T__41=42, LINE_COMMENT=43, SKIP_=44, INTEGER=45, 
-		ID=46, IDSTRING=47, STRING=48, NEWLINE=49, INDENT=50, DEDENT=51;
+		T__24=25, T__25=26, T__26=27, T__27=28, NOT=29, AND=30, OR=31, IF=32, 
+		ELSE=33, INPUT=34, PAR_IZQ=35, PAR_DER=36, LEN=37, COMMA=38, COR_IZQ=39, 
+		COR_DER=40, PUNTO=41, MENOS=42, INTEGER=43, ID=44, IDSTRING=45, STRING=46, 
+		LINE_COMMENT=47, SKIP_=48, NEWLINE=49, INDENT=50, DEDENT=51;
 	public static final int
 		RULE_program = 0, RULE_class_def = 1, RULE_class_body = 2, RULE_func_def = 3, 
 		RULE_func_body = 4, RULE_typed_var = 5, RULE_type = 6, RULE_global_decl = 7, 
@@ -40,12 +40,11 @@ public class ChocopyParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'class'", "'('", "')'", "':'", "'pass'", "'def'", "','", "'->'", 
-			"'['", "']'", "'global'", "'nonlocal'", "'='", "'if'", "'elif'", "'else'", 
-			"'while'", "'for'", "'in'", "'return'", "'print'", "'None'", "'True'", 
-			"'False'", "'not'", "'and'", "'or'", "'len'", "'input'", "'.'", "'-'", 
-			"'+'", "'*'", "'//'", "'%'", "'=='", "'!='", "'<='", "'>='", "'<'", "'>'", 
-			"'is'"
+			null, "'class'", "':'", "'pass'", "'def'", "'->'", "'global'", "'nonlocal'", 
+			"'='", "'elif'", "'while'", "'for'", "'in'", "'return'", "'print'", "'None'", 
+			"'True'", "'False'", "'+'", "'*'", "'//'", "'%'", "'=='", "'!='", "'<='", 
+			"'>='", "'<'", "'>'", "'is'", "'not'", "'and'", "'or'", "'if'", "'else'", 
+			"'input'", "'('", "')'", "'len'", "','", "'['", "']'", "'.'", "'-'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -53,9 +52,10 @@ public class ChocopyParser extends Parser {
 		return new String[] {
 			null, null, null, null, null, null, null, null, null, null, null, null, 
 			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, "LINE_COMMENT", "SKIP_", "INTEGER", 
-			"ID", "IDSTRING", "STRING", "NEWLINE", "INDENT", "DEDENT"
+			null, null, null, null, null, "NOT", "AND", "OR", "IF", "ELSE", "INPUT", 
+			"PAR_IZQ", "PAR_DER", "LEN", "COMMA", "COR_IZQ", "COR_DER", "PUNTO", 
+			"MENOS", "INTEGER", "ID", "IDSTRING", "STRING", "LINE_COMMENT", "SKIP_", 
+			"NEWLINE", "INDENT", "DEDENT"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -176,7 +176,7 @@ public class ChocopyParser extends Parser {
 						var_def();
 						}
 						break;
-					case T__5:
+					case T__3:
 						{
 						setState(37);
 						func_def();
@@ -200,7 +200,7 @@ public class ChocopyParser extends Parser {
 			setState(47);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__8) | (1L << T__13) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__27) | (1L << T__28) | (1L << T__30) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__2) | (1L << T__9) | (1L << T__10) | (1L << T__12) | (1L << T__13) | (1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << NOT) | (1L << IF) | (1L << INPUT) | (1L << PAR_IZQ) | (1L << LEN) | (1L << COR_IZQ) | (1L << MENOS) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0)) {
 				{
 				{
 				setState(44);
@@ -229,6 +229,8 @@ public class ChocopyParser extends Parser {
 		public TerminalNode ID(int i) {
 			return getToken(ChocopyParser.ID, i);
 		}
+		public TerminalNode PAR_IZQ() { return getToken(ChocopyParser.PAR_IZQ, 0); }
+		public TerminalNode PAR_DER() { return getToken(ChocopyParser.PAR_DER, 0); }
 		public TerminalNode NEWLINE() { return getToken(ChocopyParser.NEWLINE, 0); }
 		public TerminalNode INDENT() { return getToken(ChocopyParser.INDENT, 0); }
 		public Class_bodyContext class_body() {
@@ -265,13 +267,13 @@ public class ChocopyParser extends Parser {
 			setState(51);
 			match(ID);
 			setState(52);
-			match(T__1);
+			match(PAR_IZQ);
 			setState(53);
 			match(ID);
 			setState(54);
-			match(T__2);
+			match(PAR_DER);
 			setState(55);
-			match(T__3);
+			match(T__1);
 			setState(56);
 			match(NEWLINE);
 			setState(57);
@@ -334,16 +336,16 @@ public class ChocopyParser extends Parser {
 			setState(69);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case T__4:
+			case T__2:
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(61);
-				match(T__4);
+				match(T__2);
 				setState(62);
 				match(NEWLINE);
 				}
 				break;
-			case T__5:
+			case T__3:
 			case ID:
 				enterOuterAlt(_localctx, 2);
 				{
@@ -361,7 +363,7 @@ public class ChocopyParser extends Parser {
 						var_def();
 						}
 						break;
-					case T__5:
+					case T__3:
 						{
 						setState(64);
 						func_def();
@@ -374,7 +376,7 @@ public class ChocopyParser extends Parser {
 					setState(67); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-				} while ( _la==T__5 || _la==ID );
+				} while ( _la==T__3 || _la==ID );
 				}
 				break;
 			default:
@@ -394,6 +396,8 @@ public class ChocopyParser extends Parser {
 
 	public static class Func_defContext extends ParserRuleContext {
 		public TerminalNode ID() { return getToken(ChocopyParser.ID, 0); }
+		public TerminalNode PAR_IZQ() { return getToken(ChocopyParser.PAR_IZQ, 0); }
+		public TerminalNode PAR_DER() { return getToken(ChocopyParser.PAR_DER, 0); }
 		public TerminalNode NEWLINE() { return getToken(ChocopyParser.NEWLINE, 0); }
 		public TerminalNode INDENT() { return getToken(ChocopyParser.INDENT, 0); }
 		public Func_bodyContext func_body() {
@@ -408,6 +412,10 @@ public class ChocopyParser extends Parser {
 		}
 		public TypeContext type() {
 			return getRuleContext(TypeContext.class,0);
+		}
+		public List<TerminalNode> COMMA() { return getTokens(ChocopyParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(ChocopyParser.COMMA, i);
 		}
 		public Func_defContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -436,11 +444,11 @@ public class ChocopyParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(71);
-			match(T__5);
+			match(T__3);
 			setState(72);
 			match(ID);
 			setState(73);
-			match(T__1);
+			match(PAR_IZQ);
 			setState(82);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -451,11 +459,11 @@ public class ChocopyParser extends Parser {
 				setState(79);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while (_la==T__6) {
+				while (_la==COMMA) {
 					{
 					{
 					setState(75);
-					match(T__6);
+					match(COMMA);
 					setState(76);
 					typed_var();
 					}
@@ -468,21 +476,21 @@ public class ChocopyParser extends Parser {
 			}
 
 			setState(84);
-			match(T__2);
+			match(PAR_DER);
 			setState(87);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if (_la==T__7) {
+			if (_la==T__4) {
 				{
 				setState(85);
-				match(T__7);
+				match(T__4);
 				setState(86);
 				type();
 				}
 			}
 
 			setState(89);
-			match(T__3);
+			match(T__1);
 			setState(90);
 			match(NEWLINE);
 			setState(91);
@@ -571,13 +579,13 @@ public class ChocopyParser extends Parser {
 					setState(99);
 					_errHandler.sync(this);
 					switch (_input.LA(1)) {
-					case T__10:
+					case T__5:
 						{
 						setState(95);
 						global_decl();
 						}
 						break;
-					case T__11:
+					case T__6:
 						{
 						setState(96);
 						nonlocal_decl();
@@ -589,7 +597,7 @@ public class ChocopyParser extends Parser {
 						var_def();
 						}
 						break;
-					case T__5:
+					case T__3:
 						{
 						setState(98);
 						func_def();
@@ -617,7 +625,7 @@ public class ChocopyParser extends Parser {
 				setState(107); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__8) | (1L << T__13) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__27) | (1L << T__28) | (1L << T__30) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__2) | (1L << T__9) | (1L << T__10) | (1L << T__12) | (1L << T__13) | (1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << NOT) | (1L << IF) | (1L << INPUT) | (1L << PAR_IZQ) | (1L << LEN) | (1L << COR_IZQ) | (1L << MENOS) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -664,7 +672,7 @@ public class ChocopyParser extends Parser {
 			setState(109);
 			match(ID);
 			setState(110);
-			match(T__3);
+			match(T__1);
 			setState(111);
 			type();
 			}
@@ -683,9 +691,11 @@ public class ChocopyParser extends Parser {
 	public static class TypeContext extends ParserRuleContext {
 		public TerminalNode ID() { return getToken(ChocopyParser.ID, 0); }
 		public TerminalNode IDSTRING() { return getToken(ChocopyParser.IDSTRING, 0); }
+		public TerminalNode COR_IZQ() { return getToken(ChocopyParser.COR_IZQ, 0); }
 		public TypeContext type() {
 			return getRuleContext(TypeContext.class,0);
 		}
+		public TerminalNode COR_DER() { return getToken(ChocopyParser.COR_DER, 0); }
 		public TypeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -726,15 +736,15 @@ public class ChocopyParser extends Parser {
 				match(IDSTRING);
 				}
 				break;
-			case T__8:
+			case COR_IZQ:
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(115);
-				match(T__8);
+				match(COR_IZQ);
 				setState(116);
 				type();
 				setState(117);
-				match(T__9);
+				match(COR_DER);
 				}
 				break;
 			default:
@@ -781,7 +791,7 @@ public class ChocopyParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(121);
-			match(T__10);
+			match(T__5);
 			setState(122);
 			match(ID);
 			setState(123);
@@ -828,7 +838,7 @@ public class ChocopyParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(125);
-			match(T__11);
+			match(T__6);
 			setState(126);
 			match(ID);
 			setState(127);
@@ -882,7 +892,7 @@ public class ChocopyParser extends Parser {
 			setState(129);
 			typed_var();
 			setState(130);
-			match(T__12);
+			match(T__7);
 			setState(131);
 			literal();
 			setState(132);
@@ -905,6 +915,7 @@ public class ChocopyParser extends Parser {
 			return getRuleContext(Simple_stmtContext.class,0);
 		}
 		public TerminalNode NEWLINE() { return getToken(ChocopyParser.NEWLINE, 0); }
+		public TerminalNode IF() { return getToken(ChocopyParser.IF, 0); }
 		public List<ExprContext> expr() {
 			return getRuleContexts(ExprContext.class);
 		}
@@ -917,6 +928,7 @@ public class ChocopyParser extends Parser {
 		public BlockContext block(int i) {
 			return getRuleContext(BlockContext.class,i);
 		}
+		public TerminalNode ELSE() { return getToken(ChocopyParser.ELSE, 0); }
 		public TerminalNode ID() { return getToken(ChocopyParser.ID, 0); }
 		public StmtContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -945,18 +957,18 @@ public class ChocopyParser extends Parser {
 			setState(168);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case T__1:
-			case T__4:
-			case T__8:
-			case T__19:
-			case T__20:
-			case T__21:
-			case T__22:
-			case T__23:
-			case T__24:
-			case T__27:
-			case T__28:
-			case T__30:
+			case T__2:
+			case T__12:
+			case T__13:
+			case T__14:
+			case T__15:
+			case T__16:
+			case NOT:
+			case INPUT:
+			case PAR_IZQ:
+			case LEN:
+			case COR_IZQ:
+			case MENOS:
 			case INTEGER:
 			case ID:
 			case IDSTRING:
@@ -969,29 +981,29 @@ public class ChocopyParser extends Parser {
 				match(NEWLINE);
 				}
 				break;
-			case T__13:
+			case IF:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(137);
-				match(T__13);
+				match(IF);
 				setState(138);
 				expr(0);
 				setState(139);
-				match(T__3);
+				match(T__1);
 				setState(140);
 				block();
 				setState(148);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while (_la==T__14) {
+				while (_la==T__8) {
 					{
 					{
 					setState(141);
-					match(T__14);
+					match(T__8);
 					setState(142);
 					expr(0);
 					setState(143);
-					match(T__3);
+					match(T__1);
 					setState(144);
 					block();
 					}
@@ -1003,12 +1015,12 @@ public class ChocopyParser extends Parser {
 				setState(154);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if (_la==T__15) {
+				if (_la==ELSE) {
 					{
 					setState(151);
-					match(T__15);
+					match(ELSE);
 					setState(152);
-					match(T__3);
+					match(T__1);
 					setState(153);
 					block();
 					}
@@ -1016,32 +1028,32 @@ public class ChocopyParser extends Parser {
 
 				}
 				break;
-			case T__16:
+			case T__9:
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(156);
-				match(T__16);
+				match(T__9);
 				setState(157);
 				expr(0);
 				setState(158);
-				match(T__3);
+				match(T__1);
 				setState(159);
 				block();
 				}
 				break;
-			case T__17:
+			case T__10:
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(161);
-				match(T__17);
+				match(T__10);
 				setState(162);
 				match(ID);
 				setState(163);
-				match(T__18);
+				match(T__11);
 				setState(164);
 				expr(0);
 				setState(165);
-				match(T__3);
+				match(T__1);
 				setState(166);
 				block();
 				}
@@ -1071,6 +1083,8 @@ public class ChocopyParser extends Parser {
 		public TargetContext target(int i) {
 			return getRuleContext(TargetContext.class,i);
 		}
+		public TerminalNode PAR_IZQ() { return getToken(ChocopyParser.PAR_IZQ, 0); }
+		public TerminalNode PAR_DER() { return getToken(ChocopyParser.PAR_DER, 0); }
 		public Simple_stmtContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1103,7 +1117,7 @@ public class ChocopyParser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(170);
-				match(T__4);
+				match(T__2);
 				}
 				break;
 			case 2:
@@ -1117,11 +1131,11 @@ public class ChocopyParser extends Parser {
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(172);
-				match(T__19);
+				match(T__12);
 				setState(174);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__8) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__27) | (1L << T__28) | (1L << T__30) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << NOT) | (1L << INPUT) | (1L << PAR_IZQ) | (1L << LEN) | (1L << COR_IZQ) | (1L << MENOS) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0)) {
 					{
 					setState(173);
 					expr(0);
@@ -1144,7 +1158,7 @@ public class ChocopyParser extends Parser {
 						setState(176);
 						target();
 						setState(177);
-						match(T__12);
+						match(T__7);
 						}
 						}
 						break;
@@ -1163,13 +1177,13 @@ public class ChocopyParser extends Parser {
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(185);
-				match(T__20);
+				match(T__13);
 				setState(186);
-				match(T__1);
+				match(PAR_IZQ);
 				setState(187);
 				expr(0);
 				setState(188);
-				match(T__2);
+				match(PAR_DER);
 				}
 				break;
 			}
@@ -1238,7 +1252,7 @@ public class ChocopyParser extends Parser {
 				setState(197); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__4) | (1L << T__8) | (1L << T__13) | (1L << T__16) | (1L << T__17) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__27) | (1L << T__28) | (1L << T__30) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__2) | (1L << T__9) | (1L << T__10) | (1L << T__12) | (1L << T__13) | (1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << NOT) | (1L << IF) | (1L << INPUT) | (1L << PAR_IZQ) | (1L << LEN) | (1L << COR_IZQ) | (1L << MENOS) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0) );
 			setState(199);
 			match(DEDENT);
 			}
@@ -1286,7 +1300,7 @@ public class ChocopyParser extends Parser {
 			{
 			setState(201);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << INTEGER) | (1L << IDSTRING) | (1L << STRING))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << INTEGER) | (1L << IDSTRING) | (1L << STRING))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -1311,12 +1325,21 @@ public class ChocopyParser extends Parser {
 		public CexprContext cexpr() {
 			return getRuleContext(CexprContext.class,0);
 		}
+		public TerminalNode NOT() { return getToken(ChocopyParser.NOT, 0); }
 		public List<ExprContext> expr() {
 			return getRuleContexts(ExprContext.class);
 		}
 		public ExprContext expr(int i) {
 			return getRuleContext(ExprContext.class,i);
 		}
+		public TerminalNode LEN() { return getToken(ChocopyParser.LEN, 0); }
+		public TerminalNode PAR_IZQ() { return getToken(ChocopyParser.PAR_IZQ, 0); }
+		public TerminalNode PAR_DER() { return getToken(ChocopyParser.PAR_DER, 0); }
+		public TerminalNode INPUT() { return getToken(ChocopyParser.INPUT, 0); }
+		public TerminalNode AND() { return getToken(ChocopyParser.AND, 0); }
+		public TerminalNode OR() { return getToken(ChocopyParser.OR, 0); }
+		public TerminalNode IF() { return getToken(ChocopyParser.IF, 0); }
+		public TerminalNode ELSE() { return getToken(ChocopyParser.ELSE, 0); }
 		public ExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1355,12 +1378,12 @@ public class ChocopyParser extends Parser {
 			setState(215);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case T__1:
-			case T__8:
-			case T__21:
-			case T__22:
-			case T__23:
-			case T__30:
+			case T__14:
+			case T__15:
+			case T__16:
+			case PAR_IZQ:
+			case COR_IZQ:
+			case MENOS:
 			case INTEGER:
 			case ID:
 			case IDSTRING:
@@ -1370,34 +1393,34 @@ public class ChocopyParser extends Parser {
 				cexpr(0);
 				}
 				break;
-			case T__24:
+			case NOT:
 				{
 				setState(205);
-				match(T__24);
+				match(NOT);
 				setState(206);
 				expr(5);
 				}
 				break;
-			case T__27:
+			case LEN:
 				{
 				setState(207);
-				match(T__27);
+				match(LEN);
 				setState(208);
-				match(T__1);
+				match(PAR_IZQ);
 				setState(209);
 				expr(0);
 				setState(210);
-				match(T__2);
+				match(PAR_DER);
 				}
 				break;
-			case T__28:
+			case INPUT:
 				{
 				setState(212);
-				match(T__28);
+				match(INPUT);
 				setState(213);
-				match(T__1);
+				match(PAR_IZQ);
 				setState(214);
-				match(T__2);
+				match(PAR_DER);
 				}
 				break;
 			default:
@@ -1423,7 +1446,7 @@ public class ChocopyParser extends Parser {
 						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
 						setState(218);
 						_la = _input.LA(1);
-						if ( !(_la==T__25 || _la==T__26) ) {
+						if ( !(_la==AND || _la==OR) ) {
 						_errHandler.recoverInline(this);
 						}
 						else {
@@ -1442,11 +1465,11 @@ public class ChocopyParser extends Parser {
 						setState(220);
 						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
 						setState(221);
-						match(T__13);
+						match(IF);
 						setState(222);
 						expr(0);
 						setState(223);
-						match(T__15);
+						match(ELSE);
 						setState(224);
 						expr(4);
 						}
@@ -1476,12 +1499,21 @@ public class ChocopyParser extends Parser {
 		public LiteralContext literal() {
 			return getRuleContext(LiteralContext.class,0);
 		}
+		public TerminalNode COR_IZQ() { return getToken(ChocopyParser.COR_IZQ, 0); }
+		public TerminalNode COR_DER() { return getToken(ChocopyParser.COR_DER, 0); }
 		public List<ExprContext> expr() {
 			return getRuleContexts(ExprContext.class);
 		}
 		public ExprContext expr(int i) {
 			return getRuleContext(ExprContext.class,i);
 		}
+		public List<TerminalNode> COMMA() { return getTokens(ChocopyParser.COMMA); }
+		public TerminalNode COMMA(int i) {
+			return getToken(ChocopyParser.COMMA, i);
+		}
+		public TerminalNode PAR_IZQ() { return getToken(ChocopyParser.PAR_IZQ, 0); }
+		public TerminalNode PAR_DER() { return getToken(ChocopyParser.PAR_DER, 0); }
+		public TerminalNode MENOS() { return getToken(ChocopyParser.MENOS, 0); }
 		public List<CexprContext> cexpr() {
 			return getRuleContexts(CexprContext.class);
 		}
@@ -1491,6 +1523,7 @@ public class ChocopyParser extends Parser {
 		public Bin_opContext bin_op() {
 			return getRuleContext(Bin_opContext.class,0);
 		}
+		public TerminalNode PUNTO() { return getToken(ChocopyParser.PUNTO, 0); }
 		public CexprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1544,22 +1577,22 @@ public class ChocopyParser extends Parser {
 			case 3:
 				{
 				setState(234);
-				match(T__8);
+				match(COR_IZQ);
 				setState(243);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__8) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__27) | (1L << T__28) | (1L << T__30) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << NOT) | (1L << INPUT) | (1L << PAR_IZQ) | (1L << LEN) | (1L << COR_IZQ) | (1L << MENOS) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0)) {
 					{
 					setState(235);
 					expr(0);
 					setState(240);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-					while (_la==T__6) {
+					while (_la==COMMA) {
 						{
 						{
 						setState(236);
-						match(T__6);
+						match(COMMA);
 						setState(237);
 						expr(0);
 						}
@@ -1572,17 +1605,17 @@ public class ChocopyParser extends Parser {
 				}
 
 				setState(245);
-				match(T__9);
+				match(COR_DER);
 				}
 				break;
 			case 4:
 				{
 				setState(246);
-				match(T__1);
+				match(PAR_IZQ);
 				setState(247);
 				expr(0);
 				setState(248);
-				match(T__2);
+				match(PAR_DER);
 				}
 				break;
 			case 5:
@@ -1590,22 +1623,22 @@ public class ChocopyParser extends Parser {
 				setState(250);
 				match(ID);
 				setState(251);
-				match(T__1);
+				match(PAR_IZQ);
 				setState(260);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__8) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__27) | (1L << T__28) | (1L << T__30) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << NOT) | (1L << INPUT) | (1L << PAR_IZQ) | (1L << LEN) | (1L << COR_IZQ) | (1L << MENOS) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0)) {
 					{
 					setState(252);
 					expr(0);
 					setState(257);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
-					while (_la==T__6) {
+					while (_la==COMMA) {
 						{
 						{
 						setState(253);
-						match(T__6);
+						match(COMMA);
 						setState(254);
 						expr(0);
 						}
@@ -1618,13 +1651,13 @@ public class ChocopyParser extends Parser {
 				}
 
 				setState(262);
-				match(T__2);
+				match(PAR_DER);
 				}
 				break;
 			case 6:
 				{
 				setState(263);
-				match(T__30);
+				match(MENOS);
 				setState(264);
 				cexpr(1);
 				}
@@ -1661,7 +1694,7 @@ public class ChocopyParser extends Parser {
 						setState(271);
 						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
 						setState(272);
-						match(T__29);
+						match(PUNTO);
 						setState(273);
 						match(ID);
 						}
@@ -1673,11 +1706,11 @@ public class ChocopyParser extends Parser {
 						setState(274);
 						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
 						setState(275);
-						match(T__8);
+						match(COR_IZQ);
 						setState(276);
 						expr(0);
 						setState(277);
-						match(T__9);
+						match(COR_DER);
 						}
 						break;
 					case 4:
@@ -1687,26 +1720,26 @@ public class ChocopyParser extends Parser {
 						setState(279);
 						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
 						setState(280);
-						match(T__29);
+						match(PUNTO);
 						setState(281);
 						match(ID);
 						setState(282);
-						match(T__1);
+						match(PAR_IZQ);
 						setState(291);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__8) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__27) | (1L << T__28) | (1L << T__30) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__14) | (1L << T__15) | (1L << T__16) | (1L << NOT) | (1L << INPUT) | (1L << PAR_IZQ) | (1L << LEN) | (1L << COR_IZQ) | (1L << MENOS) | (1L << INTEGER) | (1L << ID) | (1L << IDSTRING) | (1L << STRING))) != 0)) {
 							{
 							setState(283);
 							expr(0);
 							setState(288);
 							_errHandler.sync(this);
 							_la = _input.LA(1);
-							while (_la==T__6) {
+							while (_la==COMMA) {
 								{
 								{
 								setState(284);
-								match(T__6);
+								match(COMMA);
 								setState(285);
 								expr(0);
 								}
@@ -1719,7 +1752,7 @@ public class ChocopyParser extends Parser {
 						}
 
 						setState(293);
-						match(T__2);
+						match(PAR_DER);
 						}
 						break;
 					}
@@ -1743,6 +1776,7 @@ public class ChocopyParser extends Parser {
 	}
 
 	public static class Bin_opContext extends ParserRuleContext {
+		public TerminalNode MENOS() { return getToken(ChocopyParser.MENOS, 0); }
 		public Bin_opContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1771,7 +1805,7 @@ public class ChocopyParser extends Parser {
 			{
 			setState(299);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__30) | (1L << T__31) | (1L << T__32) | (1L << T__33) | (1L << T__34) | (1L << T__35) | (1L << T__36) | (1L << T__37) | (1L << T__38) | (1L << T__39) | (1L << T__40) | (1L << T__41))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__17) | (1L << T__18) | (1L << T__19) | (1L << T__20) | (1L << T__21) | (1L << T__22) | (1L << T__23) | (1L << T__24) | (1L << T__25) | (1L << T__26) | (1L << T__27) | (1L << MENOS))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -1797,9 +1831,12 @@ public class ChocopyParser extends Parser {
 		public CexprContext cexpr() {
 			return getRuleContext(CexprContext.class,0);
 		}
+		public TerminalNode PUNTO() { return getToken(ChocopyParser.PUNTO, 0); }
+		public TerminalNode COR_IZQ() { return getToken(ChocopyParser.COR_IZQ, 0); }
 		public ExprContext expr() {
 			return getRuleContext(ExprContext.class,0);
 		}
+		public TerminalNode COR_DER() { return getToken(ChocopyParser.COR_DER, 0); }
 		public TargetContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1839,7 +1876,7 @@ public class ChocopyParser extends Parser {
 				setState(302);
 				cexpr(0);
 				setState(303);
-				match(T__29);
+				match(PUNTO);
 				setState(304);
 				match(ID);
 				}
@@ -1850,11 +1887,11 @@ public class ChocopyParser extends Parser {
 				setState(306);
 				cexpr(0);
 				setState(307);
-				match(T__8);
+				match(COR_IZQ);
 				setState(308);
 				expr(0);
 				setState(309);
-				match(T__9);
+				match(COR_DER);
 				}
 				break;
 			}
@@ -1927,93 +1964,92 @@ public class ChocopyParser extends Parser {
 		"\21\3\21\7\21\u0121\n\21\f\21\16\21\u0124\13\21\5\21\u0126\n\21\3\21\7"+
 		"\21\u0129\n\21\f\21\16\21\u012c\13\21\3\22\3\22\3\23\3\23\3\23\3\23\3"+
 		"\23\3\23\3\23\3\23\3\23\3\23\5\23\u013a\n\23\3\23\2\4\36 \24\2\4\6\b\n"+
-		"\f\16\20\22\24\26\30\32\34\36 \"$\2\5\5\2\30\32//\61\62\3\2\34\35\3\2"+
-		"!,\2\u015c\2+\3\2\2\2\4\64\3\2\2\2\6G\3\2\2\2\bI\3\2\2\2\ng\3\2\2\2\f"+
+		"\f\16\20\22\24\26\30\32\34\36 \"$\2\5\5\2\21\23--/\60\3\2 !\4\2\24\36"+
+		",,\2\u015c\2+\3\2\2\2\4\64\3\2\2\2\6G\3\2\2\2\bI\3\2\2\2\ng\3\2\2\2\f"+
 		"o\3\2\2\2\16y\3\2\2\2\20{\3\2\2\2\22\177\3\2\2\2\24\u0083\3\2\2\2\26\u00aa"+
 		"\3\2\2\2\30\u00c0\3\2\2\2\32\u00c2\3\2\2\2\34\u00cb\3\2\2\2\36\u00d9\3"+
 		"\2\2\2 \u010b\3\2\2\2\"\u012d\3\2\2\2$\u0139\3\2\2\2&*\5\24\13\2\'*\5"+
 		"\b\5\2(*\5\4\3\2)&\3\2\2\2)\'\3\2\2\2)(\3\2\2\2*-\3\2\2\2+)\3\2\2\2+,"+
 		"\3\2\2\2,\61\3\2\2\2-+\3\2\2\2.\60\5\26\f\2/.\3\2\2\2\60\63\3\2\2\2\61"+
 		"/\3\2\2\2\61\62\3\2\2\2\62\3\3\2\2\2\63\61\3\2\2\2\64\65\7\3\2\2\65\66"+
-		"\7\60\2\2\66\67\7\4\2\2\678\7\60\2\289\7\5\2\29:\7\6\2\2:;\7\63\2\2;<"+
-		"\7\64\2\2<=\5\6\4\2=>\7\65\2\2>\5\3\2\2\2?@\7\7\2\2@H\7\63\2\2AD\5\24"+
-		"\13\2BD\5\b\5\2CA\3\2\2\2CB\3\2\2\2DE\3\2\2\2EC\3\2\2\2EF\3\2\2\2FH\3"+
-		"\2\2\2G?\3\2\2\2GC\3\2\2\2H\7\3\2\2\2IJ\7\b\2\2JK\7\60\2\2KT\7\4\2\2L"+
-		"Q\5\f\7\2MN\7\t\2\2NP\5\f\7\2OM\3\2\2\2PS\3\2\2\2QO\3\2\2\2QR\3\2\2\2"+
-		"RU\3\2\2\2SQ\3\2\2\2TL\3\2\2\2TU\3\2\2\2UV\3\2\2\2VY\7\5\2\2WX\7\n\2\2"+
-		"XZ\5\16\b\2YW\3\2\2\2YZ\3\2\2\2Z[\3\2\2\2[\\\7\6\2\2\\]\7\63\2\2]^\7\64"+
-		"\2\2^_\5\n\6\2_`\7\65\2\2`\t\3\2\2\2af\5\20\t\2bf\5\22\n\2cf\5\24\13\2"+
-		"df\5\b\5\2ea\3\2\2\2eb\3\2\2\2ec\3\2\2\2ed\3\2\2\2fi\3\2\2\2ge\3\2\2\2"+
-		"gh\3\2\2\2hk\3\2\2\2ig\3\2\2\2jl\5\26\f\2kj\3\2\2\2lm\3\2\2\2mk\3\2\2"+
-		"\2mn\3\2\2\2n\13\3\2\2\2op\7\60\2\2pq\7\6\2\2qr\5\16\b\2r\r\3\2\2\2sz"+
-		"\7\60\2\2tz\7\61\2\2uv\7\13\2\2vw\5\16\b\2wx\7\f\2\2xz\3\2\2\2ys\3\2\2"+
-		"\2yt\3\2\2\2yu\3\2\2\2z\17\3\2\2\2{|\7\r\2\2|}\7\60\2\2}~\7\63\2\2~\21"+
-		"\3\2\2\2\177\u0080\7\16\2\2\u0080\u0081\7\60\2\2\u0081\u0082\7\63\2\2"+
-		"\u0082\23\3\2\2\2\u0083\u0084\5\f\7\2\u0084\u0085\7\17\2\2\u0085\u0086"+
-		"\5\34\17\2\u0086\u0087\7\63\2\2\u0087\25\3\2\2\2\u0088\u0089\5\30\r\2"+
-		"\u0089\u008a\7\63\2\2\u008a\u00ab\3\2\2\2\u008b\u008c\7\20\2\2\u008c\u008d"+
-		"\5\36\20\2\u008d\u008e\7\6\2\2\u008e\u0096\5\32\16\2\u008f\u0090\7\21"+
-		"\2\2\u0090\u0091\5\36\20\2\u0091\u0092\7\6\2\2\u0092\u0093\5\32\16\2\u0093"+
-		"\u0095\3\2\2\2\u0094\u008f\3\2\2\2\u0095\u0098\3\2\2\2\u0096\u0094\3\2"+
-		"\2\2\u0096\u0097\3\2\2\2\u0097\u009c\3\2\2\2\u0098\u0096\3\2\2\2\u0099"+
-		"\u009a\7\22\2\2\u009a\u009b\7\6\2\2\u009b\u009d\5\32\16\2\u009c\u0099"+
-		"\3\2\2\2\u009c\u009d\3\2\2\2\u009d\u00ab\3\2\2\2\u009e\u009f\7\23\2\2"+
-		"\u009f\u00a0\5\36\20\2\u00a0\u00a1\7\6\2\2\u00a1\u00a2\5\32\16\2\u00a2"+
-		"\u00ab\3\2\2\2\u00a3\u00a4\7\24\2\2\u00a4\u00a5\7\60\2\2\u00a5\u00a6\7"+
-		"\25\2\2\u00a6\u00a7\5\36\20\2\u00a7\u00a8\7\6\2\2\u00a8\u00a9\5\32\16"+
-		"\2\u00a9\u00ab\3\2\2\2\u00aa\u0088\3\2\2\2\u00aa\u008b\3\2\2\2\u00aa\u009e"+
-		"\3\2\2\2\u00aa\u00a3\3\2\2\2\u00ab\27\3\2\2\2\u00ac\u00c1\7\7\2\2\u00ad"+
-		"\u00c1\5\36\20\2\u00ae\u00b0\7\26\2\2\u00af\u00b1\5\36\20\2\u00b0\u00af"+
-		"\3\2\2\2\u00b0\u00b1\3\2\2\2\u00b1\u00c1\3\2\2\2\u00b2\u00b3\5$\23\2\u00b3"+
-		"\u00b4\7\17\2\2\u00b4\u00b6\3\2\2\2\u00b5\u00b2\3\2\2\2\u00b6\u00b7\3"+
-		"\2\2\2\u00b7\u00b5\3\2\2\2\u00b7\u00b8\3\2\2\2\u00b8\u00b9\3\2\2\2\u00b9"+
-		"\u00ba\5\36\20\2\u00ba\u00c1\3\2\2\2\u00bb\u00bc\7\27\2\2\u00bc\u00bd"+
-		"\7\4\2\2\u00bd\u00be\5\36\20\2\u00be\u00bf\7\5\2\2\u00bf\u00c1\3\2\2\2"+
-		"\u00c0\u00ac\3\2\2\2\u00c0\u00ad\3\2\2\2\u00c0\u00ae\3\2\2\2\u00c0\u00b5"+
-		"\3\2\2\2\u00c0\u00bb\3\2\2\2\u00c1\31\3\2\2\2\u00c2\u00c3\7\63\2\2\u00c3"+
-		"\u00c5\7\64\2\2\u00c4\u00c6\5\26\f\2\u00c5\u00c4\3\2\2\2\u00c6\u00c7\3"+
-		"\2\2\2\u00c7\u00c5\3\2\2\2\u00c7\u00c8\3\2\2\2\u00c8\u00c9\3\2\2\2\u00c9"+
-		"\u00ca\7\65\2\2\u00ca\33\3\2\2\2\u00cb\u00cc\t\2\2\2\u00cc\35\3\2\2\2"+
-		"\u00cd\u00ce\b\20\1\2\u00ce\u00da\5 \21\2\u00cf\u00d0\7\33\2\2\u00d0\u00da"+
-		"\5\36\20\7\u00d1\u00d2\7\36\2\2\u00d2\u00d3\7\4\2\2\u00d3\u00d4\5\36\20"+
-		"\2\u00d4\u00d5\7\5\2\2\u00d5\u00da\3\2\2\2\u00d6\u00d7\7\37\2\2\u00d7"+
-		"\u00d8\7\4\2\2\u00d8\u00da\7\5\2\2\u00d9\u00cd\3\2\2\2\u00d9\u00cf\3\2"+
-		"\2\2\u00d9\u00d1\3\2\2\2\u00d9\u00d6\3\2\2\2\u00da\u00e6\3\2\2\2\u00db"+
-		"\u00dc\f\6\2\2\u00dc\u00dd\t\3\2\2\u00dd\u00e5\5\36\20\7\u00de\u00df\f"+
-		"\5\2\2\u00df\u00e0\7\20\2\2\u00e0\u00e1\5\36\20\2\u00e1\u00e2\7\22\2\2"+
-		"\u00e2\u00e3\5\36\20\6\u00e3\u00e5\3\2\2\2\u00e4\u00db\3\2\2\2\u00e4\u00de"+
-		"\3\2\2\2\u00e5\u00e8\3\2\2\2\u00e6\u00e4\3\2\2\2\u00e6\u00e7\3\2\2\2\u00e7"+
-		"\37\3\2\2\2\u00e8\u00e6\3\2\2\2\u00e9\u00ea\b\21\1\2\u00ea\u010c\7\60"+
-		"\2\2\u00eb\u010c\5\34\17\2\u00ec\u00f5\7\13\2\2\u00ed\u00f2\5\36\20\2"+
-		"\u00ee\u00ef\7\t\2\2\u00ef\u00f1\5\36\20\2\u00f0\u00ee\3\2\2\2\u00f1\u00f4"+
-		"\3\2\2\2\u00f2\u00f0\3\2\2\2\u00f2\u00f3\3\2\2\2\u00f3\u00f6\3\2\2\2\u00f4"+
-		"\u00f2\3\2\2\2\u00f5\u00ed\3\2\2\2\u00f5\u00f6\3\2\2\2\u00f6\u00f7\3\2"+
-		"\2\2\u00f7\u010c\7\f\2\2\u00f8\u00f9\7\4\2\2\u00f9\u00fa\5\36\20\2\u00fa"+
-		"\u00fb\7\5\2\2\u00fb\u010c\3\2\2\2\u00fc\u00fd\7\60\2\2\u00fd\u0106\7"+
-		"\4\2\2\u00fe\u0103\5\36\20\2\u00ff\u0100\7\t\2\2\u0100\u0102\5\36\20\2"+
-		"\u0101\u00ff\3\2\2\2\u0102\u0105\3\2\2\2\u0103\u0101\3\2\2\2\u0103\u0104"+
-		"\3\2\2\2\u0104\u0107\3\2\2\2\u0105\u0103\3\2\2\2\u0106\u00fe\3\2\2\2\u0106"+
-		"\u0107\3\2\2\2\u0107\u0108\3\2\2\2\u0108\u010c\7\5\2\2\u0109\u010a\7!"+
-		"\2\2\u010a\u010c\5 \21\3\u010b\u00e9\3\2\2\2\u010b\u00eb\3\2\2\2\u010b"+
-		"\u00ec\3\2\2\2\u010b\u00f8\3\2\2\2\u010b\u00fc\3\2\2\2\u010b\u0109\3\2"+
-		"\2\2\u010c\u012a\3\2\2\2\u010d\u010e\f\4\2\2\u010e\u010f\5\"\22\2\u010f"+
-		"\u0110\5 \21\5\u0110\u0129\3\2\2\2\u0111\u0112\f\b\2\2\u0112\u0113\7 "+
-		"\2\2\u0113\u0129\7\60\2\2\u0114\u0115\f\7\2\2\u0115\u0116\7\13\2\2\u0116"+
-		"\u0117\5\36\20\2\u0117\u0118\7\f\2\2\u0118\u0129\3\2\2\2\u0119\u011a\f"+
-		"\6\2\2\u011a\u011b\7 \2\2\u011b\u011c\7\60\2\2\u011c\u0125\7\4\2\2\u011d"+
-		"\u0122\5\36\20\2\u011e\u011f\7\t\2\2\u011f\u0121\5\36\20\2\u0120\u011e"+
-		"\3\2\2\2\u0121\u0124\3\2\2\2\u0122\u0120\3\2\2\2\u0122\u0123\3\2\2\2\u0123"+
-		"\u0126\3\2\2\2\u0124\u0122\3\2\2\2\u0125\u011d\3\2\2\2\u0125\u0126\3\2"+
-		"\2\2\u0126\u0127\3\2\2\2\u0127\u0129\7\5\2\2\u0128\u010d\3\2\2\2\u0128"+
-		"\u0111\3\2\2\2\u0128\u0114\3\2\2\2\u0128\u0119\3\2\2\2\u0129\u012c\3\2"+
-		"\2\2\u012a\u0128\3\2\2\2\u012a\u012b\3\2\2\2\u012b!\3\2\2\2\u012c\u012a"+
-		"\3\2\2\2\u012d\u012e\t\4\2\2\u012e#\3\2\2\2\u012f\u013a\7\60\2\2\u0130"+
-		"\u0131\5 \21\2\u0131\u0132\7 \2\2\u0132\u0133\7\60\2\2\u0133\u013a\3\2"+
-		"\2\2\u0134\u0135\5 \21\2\u0135\u0136\7\13\2\2\u0136\u0137\5\36\20\2\u0137"+
-		"\u0138\7\f\2\2\u0138\u013a\3\2\2\2\u0139\u012f\3\2\2\2\u0139\u0130\3\2"+
-		"\2\2\u0139\u0134\3\2\2\2\u013a%\3\2\2\2#)+\61CEGQTYegmy\u0096\u009c\u00aa"+
-		"\u00b0\u00b7\u00c0\u00c7\u00d9\u00e4\u00e6\u00f2\u00f5\u0103\u0106\u010b"+
-		"\u0122\u0125\u0128\u012a\u0139";
+		"\7.\2\2\66\67\7%\2\2\678\7.\2\289\7&\2\29:\7\4\2\2:;\7\63\2\2;<\7\64\2"+
+		"\2<=\5\6\4\2=>\7\65\2\2>\5\3\2\2\2?@\7\5\2\2@H\7\63\2\2AD\5\24\13\2BD"+
+		"\5\b\5\2CA\3\2\2\2CB\3\2\2\2DE\3\2\2\2EC\3\2\2\2EF\3\2\2\2FH\3\2\2\2G"+
+		"?\3\2\2\2GC\3\2\2\2H\7\3\2\2\2IJ\7\6\2\2JK\7.\2\2KT\7%\2\2LQ\5\f\7\2M"+
+		"N\7(\2\2NP\5\f\7\2OM\3\2\2\2PS\3\2\2\2QO\3\2\2\2QR\3\2\2\2RU\3\2\2\2S"+
+		"Q\3\2\2\2TL\3\2\2\2TU\3\2\2\2UV\3\2\2\2VY\7&\2\2WX\7\7\2\2XZ\5\16\b\2"+
+		"YW\3\2\2\2YZ\3\2\2\2Z[\3\2\2\2[\\\7\4\2\2\\]\7\63\2\2]^\7\64\2\2^_\5\n"+
+		"\6\2_`\7\65\2\2`\t\3\2\2\2af\5\20\t\2bf\5\22\n\2cf\5\24\13\2df\5\b\5\2"+
+		"ea\3\2\2\2eb\3\2\2\2ec\3\2\2\2ed\3\2\2\2fi\3\2\2\2ge\3\2\2\2gh\3\2\2\2"+
+		"hk\3\2\2\2ig\3\2\2\2jl\5\26\f\2kj\3\2\2\2lm\3\2\2\2mk\3\2\2\2mn\3\2\2"+
+		"\2n\13\3\2\2\2op\7.\2\2pq\7\4\2\2qr\5\16\b\2r\r\3\2\2\2sz\7.\2\2tz\7/"+
+		"\2\2uv\7)\2\2vw\5\16\b\2wx\7*\2\2xz\3\2\2\2ys\3\2\2\2yt\3\2\2\2yu\3\2"+
+		"\2\2z\17\3\2\2\2{|\7\b\2\2|}\7.\2\2}~\7\63\2\2~\21\3\2\2\2\177\u0080\7"+
+		"\t\2\2\u0080\u0081\7.\2\2\u0081\u0082\7\63\2\2\u0082\23\3\2\2\2\u0083"+
+		"\u0084\5\f\7\2\u0084\u0085\7\n\2\2\u0085\u0086\5\34\17\2\u0086\u0087\7"+
+		"\63\2\2\u0087\25\3\2\2\2\u0088\u0089\5\30\r\2\u0089\u008a\7\63\2\2\u008a"+
+		"\u00ab\3\2\2\2\u008b\u008c\7\"\2\2\u008c\u008d\5\36\20\2\u008d\u008e\7"+
+		"\4\2\2\u008e\u0096\5\32\16\2\u008f\u0090\7\13\2\2\u0090\u0091\5\36\20"+
+		"\2\u0091\u0092\7\4\2\2\u0092\u0093\5\32\16\2\u0093\u0095\3\2\2\2\u0094"+
+		"\u008f\3\2\2\2\u0095\u0098\3\2\2\2\u0096\u0094\3\2\2\2\u0096\u0097\3\2"+
+		"\2\2\u0097\u009c\3\2\2\2\u0098\u0096\3\2\2\2\u0099\u009a\7#\2\2\u009a"+
+		"\u009b\7\4\2\2\u009b\u009d\5\32\16\2\u009c\u0099\3\2\2\2\u009c\u009d\3"+
+		"\2\2\2\u009d\u00ab\3\2\2\2\u009e\u009f\7\f\2\2\u009f\u00a0\5\36\20\2\u00a0"+
+		"\u00a1\7\4\2\2\u00a1\u00a2\5\32\16\2\u00a2\u00ab\3\2\2\2\u00a3\u00a4\7"+
+		"\r\2\2\u00a4\u00a5\7.\2\2\u00a5\u00a6\7\16\2\2\u00a6\u00a7\5\36\20\2\u00a7"+
+		"\u00a8\7\4\2\2\u00a8\u00a9\5\32\16\2\u00a9\u00ab\3\2\2\2\u00aa\u0088\3"+
+		"\2\2\2\u00aa\u008b\3\2\2\2\u00aa\u009e\3\2\2\2\u00aa\u00a3\3\2\2\2\u00ab"+
+		"\27\3\2\2\2\u00ac\u00c1\7\5\2\2\u00ad\u00c1\5\36\20\2\u00ae\u00b0\7\17"+
+		"\2\2\u00af\u00b1\5\36\20\2\u00b0\u00af\3\2\2\2\u00b0\u00b1\3\2\2\2\u00b1"+
+		"\u00c1\3\2\2\2\u00b2\u00b3\5$\23\2\u00b3\u00b4\7\n\2\2\u00b4\u00b6\3\2"+
+		"\2\2\u00b5\u00b2\3\2\2\2\u00b6\u00b7\3\2\2\2\u00b7\u00b5\3\2\2\2\u00b7"+
+		"\u00b8\3\2\2\2\u00b8\u00b9\3\2\2\2\u00b9\u00ba\5\36\20\2\u00ba\u00c1\3"+
+		"\2\2\2\u00bb\u00bc\7\20\2\2\u00bc\u00bd\7%\2\2\u00bd\u00be\5\36\20\2\u00be"+
+		"\u00bf\7&\2\2\u00bf\u00c1\3\2\2\2\u00c0\u00ac\3\2\2\2\u00c0\u00ad\3\2"+
+		"\2\2\u00c0\u00ae\3\2\2\2\u00c0\u00b5\3\2\2\2\u00c0\u00bb\3\2\2\2\u00c1"+
+		"\31\3\2\2\2\u00c2\u00c3\7\63\2\2\u00c3\u00c5\7\64\2\2\u00c4\u00c6\5\26"+
+		"\f\2\u00c5\u00c4\3\2\2\2\u00c6\u00c7\3\2\2\2\u00c7\u00c5\3\2\2\2\u00c7"+
+		"\u00c8\3\2\2\2\u00c8\u00c9\3\2\2\2\u00c9\u00ca\7\65\2\2\u00ca\33\3\2\2"+
+		"\2\u00cb\u00cc\t\2\2\2\u00cc\35\3\2\2\2\u00cd\u00ce\b\20\1\2\u00ce\u00da"+
+		"\5 \21\2\u00cf\u00d0\7\37\2\2\u00d0\u00da\5\36\20\7\u00d1\u00d2\7\'\2"+
+		"\2\u00d2\u00d3\7%\2\2\u00d3\u00d4\5\36\20\2\u00d4\u00d5\7&\2\2\u00d5\u00da"+
+		"\3\2\2\2\u00d6\u00d7\7$\2\2\u00d7\u00d8\7%\2\2\u00d8\u00da\7&\2\2\u00d9"+
+		"\u00cd\3\2\2\2\u00d9\u00cf\3\2\2\2\u00d9\u00d1\3\2\2\2\u00d9\u00d6\3\2"+
+		"\2\2\u00da\u00e6\3\2\2\2\u00db\u00dc\f\6\2\2\u00dc\u00dd\t\3\2\2\u00dd"+
+		"\u00e5\5\36\20\7\u00de\u00df\f\5\2\2\u00df\u00e0\7\"\2\2\u00e0\u00e1\5"+
+		"\36\20\2\u00e1\u00e2\7#\2\2\u00e2\u00e3\5\36\20\6\u00e3\u00e5\3\2\2\2"+
+		"\u00e4\u00db\3\2\2\2\u00e4\u00de\3\2\2\2\u00e5\u00e8\3\2\2\2\u00e6\u00e4"+
+		"\3\2\2\2\u00e6\u00e7\3\2\2\2\u00e7\37\3\2\2\2\u00e8\u00e6\3\2\2\2\u00e9"+
+		"\u00ea\b\21\1\2\u00ea\u010c\7.\2\2\u00eb\u010c\5\34\17\2\u00ec\u00f5\7"+
+		")\2\2\u00ed\u00f2\5\36\20\2\u00ee\u00ef\7(\2\2\u00ef\u00f1\5\36\20\2\u00f0"+
+		"\u00ee\3\2\2\2\u00f1\u00f4\3\2\2\2\u00f2\u00f0\3\2\2\2\u00f2\u00f3\3\2"+
+		"\2\2\u00f3\u00f6\3\2\2\2\u00f4\u00f2\3\2\2\2\u00f5\u00ed\3\2\2\2\u00f5"+
+		"\u00f6\3\2\2\2\u00f6\u00f7\3\2\2\2\u00f7\u010c\7*\2\2\u00f8\u00f9\7%\2"+
+		"\2\u00f9\u00fa\5\36\20\2\u00fa\u00fb\7&\2\2\u00fb\u010c\3\2\2\2\u00fc"+
+		"\u00fd\7.\2\2\u00fd\u0106\7%\2\2\u00fe\u0103\5\36\20\2\u00ff\u0100\7("+
+		"\2\2\u0100\u0102\5\36\20\2\u0101\u00ff\3\2\2\2\u0102\u0105\3\2\2\2\u0103"+
+		"\u0101\3\2\2\2\u0103\u0104\3\2\2\2\u0104\u0107\3\2\2\2\u0105\u0103\3\2"+
+		"\2\2\u0106\u00fe\3\2\2\2\u0106\u0107\3\2\2\2\u0107\u0108\3\2\2\2\u0108"+
+		"\u010c\7&\2\2\u0109\u010a\7,\2\2\u010a\u010c\5 \21\3\u010b\u00e9\3\2\2"+
+		"\2\u010b\u00eb\3\2\2\2\u010b\u00ec\3\2\2\2\u010b\u00f8\3\2\2\2\u010b\u00fc"+
+		"\3\2\2\2\u010b\u0109\3\2\2\2\u010c\u012a\3\2\2\2\u010d\u010e\f\4\2\2\u010e"+
+		"\u010f\5\"\22\2\u010f\u0110\5 \21\5\u0110\u0129\3\2\2\2\u0111\u0112\f"+
+		"\b\2\2\u0112\u0113\7+\2\2\u0113\u0129\7.\2\2\u0114\u0115\f\7\2\2\u0115"+
+		"\u0116\7)\2\2\u0116\u0117\5\36\20\2\u0117\u0118\7*\2\2\u0118\u0129\3\2"+
+		"\2\2\u0119\u011a\f\6\2\2\u011a\u011b\7+\2\2\u011b\u011c\7.\2\2\u011c\u0125"+
+		"\7%\2\2\u011d\u0122\5\36\20\2\u011e\u011f\7(\2\2\u011f\u0121\5\36\20\2"+
+		"\u0120\u011e\3\2\2\2\u0121\u0124\3\2\2\2\u0122\u0120\3\2\2\2\u0122\u0123"+
+		"\3\2\2\2\u0123\u0126\3\2\2\2\u0124\u0122\3\2\2\2\u0125\u011d\3\2\2\2\u0125"+
+		"\u0126\3\2\2\2\u0126\u0127\3\2\2\2\u0127\u0129\7&\2\2\u0128\u010d\3\2"+
+		"\2\2\u0128\u0111\3\2\2\2\u0128\u0114\3\2\2\2\u0128\u0119\3\2\2\2\u0129"+
+		"\u012c\3\2\2\2\u012a\u0128\3\2\2\2\u012a\u012b\3\2\2\2\u012b!\3\2\2\2"+
+		"\u012c\u012a\3\2\2\2\u012d\u012e\t\4\2\2\u012e#\3\2\2\2\u012f\u013a\7"+
+		".\2\2\u0130\u0131\5 \21\2\u0131\u0132\7+\2\2\u0132\u0133\7.\2\2\u0133"+
+		"\u013a\3\2\2\2\u0134\u0135\5 \21\2\u0135\u0136\7)\2\2\u0136\u0137\5\36"+
+		"\20\2\u0137\u0138\7*\2\2\u0138\u013a\3\2\2\2\u0139\u012f\3\2\2\2\u0139"+
+		"\u0130\3\2\2\2\u0139\u0134\3\2\2\2\u013a%\3\2\2\2#)+\61CEGQTYegmy\u0096"+
+		"\u009c\u00aa\u00b0\u00b7\u00c0\u00c7\u00d9\u00e4\u00e6\u00f2\u00f5\u0103"+
+		"\u0106\u010b\u0122\u0125\u0128\u012a\u0139";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

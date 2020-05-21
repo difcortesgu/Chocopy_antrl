@@ -1,4 +1,4 @@
-// Generated from C:/Users/diego/IdeaProjects/Chocopy_Interpreter/grammar\Chocopy.g4 by ANTLR 4.8
+// Generated from C:/Users/diego/Documents/Lenguajes/Chocopy_antrl/grammar\Chocopy.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
