@@ -12,7 +12,7 @@ public class Main {
         ChocopyParser parser = new ChocopyParser(tokens);
         ParseTree tree = parser.program();
 
-        Visitor<Object> loader = new Visitor<Object>();
+        Visitor loader = new Visitor();
         loader.visit(tree);
     }
 }

@@ -20,6 +20,31 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
     }
 
     @Override
+    public Object visitClass_def(ChocopyParser.Class_defContext ctx) {
+
+        String className = ctx.ID(0).getText();
+        String parentName = ctx.ID(1).getText();
+
+        if (symbolTable.containsKey(className)){
+            System.err.println("La clase " + className + " ya fue definida");
+            System.exit(1);
+        }
+        if (!symbolTable.containsKey(parentName)){
+            System.err.println("La clase " + parentName + " no ha sido definida");
+            System.exit(1);
+        }
+        Record new_class = new Record("class", new Hashtable<String, Record>());
+        symbolTable.put(className, new_class);
+
+        // Inside all the declarations must be put in the symbol's table
+        symbolTable = (Hashtable<String, Record>) symbolTable.get(className).getValue();
+        visitClass_body(ctx.class_body());
+        symbolTable = callStack.peek();
+
+        return  null;
+    }
+
+    @Override
     public Object visitFunc_def(ChocopyParser.Func_defContext ctx) {
         String funcName = ctx.ID().getText();
         if (symbolTable.containsKey(funcName)){
@@ -72,14 +97,20 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         if (ctx.ID() !=  null){
 
             if (ctx.PUNTO() !=  null){
+                Record r = (Record) visitCexpr(ctx.cexpr(0));
+                symbolTable = (Hashtable<String, Record>) symbolTable.get(r.getType()).getValue();
 
                 if (ctx.PAR_IZQ() !=  null){
                     // CEXPR . ID ( EXPR ... )
-                    return null;
+                    Record result = (Record) func_eval(ctx);
+                    symbolTable = callStack.peek();
+                    return result;
                 }
 
                 // CEXPR . ID
-                return null;
+                Record r1 = symbolTable.get(ctx.ID().getText());
+                symbolTable = callStack.peek();
+                return r1;
             }
             if (ctx.PAR_IZQ() !=  null){
                 // ID ( EXPR ... )
@@ -101,7 +132,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
 
         if (ctx.COR_IZQ() != null){
 
-            if (ctx.cexpr() !=  null){
+            if (ctx.cexpr(0) !=  null){
                 // CEXPR [ EXPR ]
                 Record cexpr = (Record) visitCexpr(ctx.cexpr(0));
                 if (!cexpr.getType().equals("list") && !cexpr.getType().equals("str")){
@@ -180,7 +211,6 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 System.err.println("La operacion \""+op+"\" no esta permitida entre los tipos de datos "+cexpr1.getType()+" y "+cexpr2.getType());
                 System.exit(1);
             }
-
 
             switch (op){
                 case "+":
