@@ -1,9 +1,9 @@
-public class Record<T> {
+public class Record {
 
     private String type;
-    private T value;
+    private Object value;
 
-    public Record(String type, T value) {
+    public Record(String type, Object value) {
         this.type = type;
         this.value = value;
     }
@@ -16,11 +16,11 @@ public class Record<T> {
         this.type = type;
     }
 
-    public T getValue() {
+    public Object getValue() {
         return value;
     }
 
-    public void setValue(T value) {
+    public void setValue(Object value) {
         this.value = value;
     }
 }
