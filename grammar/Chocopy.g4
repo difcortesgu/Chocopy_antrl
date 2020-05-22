@@ -146,8 +146,8 @@ cexpr : ID
     | COR_IZQ (expr (COMMA expr)*)? COR_DER
     | PAR_IZQ expr PAR_DER
     | cexpr PUNTO ID
-    | cexpr COR_IZQ expr COR_DER
     | cexpr PUNTO ID PAR_IZQ (expr (',' expr)*)? PAR_DER
+    | cexpr COR_IZQ expr COR_DER
     | ID PAR_IZQ (expr (',' expr)*)? PAR_DER
     | cexpr bin_op cexpr
     | MENOS cexpr

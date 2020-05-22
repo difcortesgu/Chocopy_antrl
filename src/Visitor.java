@@ -1,27 +1,28 @@
-import java.util.Hashtable;
-import java.util.Stack;
+import java.util.*;
 
 public class Visitor extends ChocopyBaseVisitor<Object>{
 
     // Stack that contains the symbol tables for each scope
     // When entering a new scope, a new item should be added to the stack
     // When getting out of an scope, the last item of the stack should be popped
-    Stack<Hashtable<String, Record>> callStack;
+    Stack<String> callStack;
+    Hashtable<String, Hashtable<String, Record>> symbolTables;
     // Contains the symbol table of the current scope
-    Hashtable<String,Record> symbolTable;
+    Hashtable<String, Record> symbolTable;
 
     @Override
     public Object visitProgram(ChocopyParser.ProgramContext ctx) {
         callStack = new Stack<>();
+        symbolTables = new Hashtable<String, Hashtable<String, Record>>();
         Hashtable<String, Record> program = new Hashtable<>();
-        callStack.push(program);
-        symbolTable = callStack.peek();
+        symbolTables.put("program", program);
+        callStack.push("program");
+        symbolTable = symbolTables.get(callStack.peek());
         return  super.visitProgram(ctx);
     }
-
+    /*
     @Override
     public Object visitClass_def(ChocopyParser.Class_defContext ctx) {
-
         String className = ctx.ID(0).getText();
         String parentName = ctx.ID(1).getText();
 
@@ -33,17 +34,12 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             System.err.println("La clase " + parentName + " no ha sido definida");
             System.exit(1);
         }
-        Record new_class = new Record("class", new Hashtable<String, Record>());
+        Record new_class = new Record("class", ctx);
         symbolTable.put(className, new_class);
-
-        // Inside all the declarations must be put in the symbol's table
-        symbolTable = (Hashtable<String, Record>) symbolTable.get(className).getValue();
-        visitClass_body(ctx.class_body());
-        symbolTable = callStack.peek();
 
         return  null;
     }
-
+    */
     @Override
     public Object visitFunc_def(ChocopyParser.Func_defContext ctx) {
         String funcName = ctx.ID().getText();
@@ -53,6 +49,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         }
         Record func = new Record("func", ctx);
         symbolTable.put(funcName, func);
+        symbolTables.put(funcName, new Hashtable<String, Record>());
         return  null;
     }
 
@@ -64,30 +61,52 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         }
         if (ctx.NOT() !=  null){
             //NOT EXPR
-
-            return visitCexpr(ctx.cexpr());
+            Record r = (Record) visitExpr(ctx.expr(0));
+            if (r.getType() != "bool"){
+                System.err.println("La operacion not solo es valida en booleanos, se recibio: \""+r.getType()+"\"");
+                System.exit(1);
+            }
+            return ! (boolean)((Record) visitExpr(ctx.expr(0))).getValue();
         }
-        if (ctx.AND() !=  null){
+        if (ctx.AND() !=  null || ctx.OR() !=  null){
             // EXPR AND EXPR
-            return visitCexpr(ctx.cexpr());
-        }
-        if (ctx.OR() !=  null){
-            // EXPR OR EXPR
-            return visitCexpr(ctx.cexpr());
+            Record r1 = (Record) visitExpr(ctx.expr(0));
+            Record r2 = (Record) visitExpr(ctx.expr(1));
+            if (r1.getType() != "bool" || r2.getType() != "bool"){
+                System.err.println("La operacion and/or solo es valida en booleanos, se recibio: \""+r1.getType()+"\", \""+r2.getType()+"\"");
+                System.exit(1);
+            }
+            if (ctx.AND() !=  null)
+                return (boolean) r1.getValue() && (boolean) r2.getValue();
+            else
+                return (boolean) r1.getValue() || (boolean) r2.getValue();
         }
         if (ctx.IF() !=  null){
             // EXPR IF EXPR ELSE EXPR
-            return visitCexpr(ctx.cexpr());
+            Record r2 = (Record) visitExpr(ctx.expr(1));
+            if (r2.getType() != "bool"){
+                System.err.println("La condicion debe ser de tipo booleano, se recibio: \""+r2.getType()+"\"");
+                System.exit(1);
+            }
+            if ((boolean) r2.getValue())
+                return visitExpr(ctx.expr(0));
+            else
+                return visitExpr(ctx.expr(2));
         }
         if (ctx.LEN() !=  null){
             // LEN ( EXPR )
-            return visitCexpr(ctx.cexpr());
+            Record r = (Record) visitExpr(ctx.expr(0));
+            if (r.getType() != "str" || r.getType() != "list"){
+                System.err.println("La expresion debe ser de tipo \"lista\" o \"str\", se recibio: \""+r.getType()+"\"");
+                System.exit(1);
+            }
+            return ((Object[])r.getValue()).length;
         }
         if (ctx.INPUT() !=  null){
             // INPUT ( )
-            return visitCexpr(ctx.cexpr());
+            Scanner s = new Scanner(System.in);
+            return new Record("str", s.next());
         }
-
         return null;
     }
 
@@ -95,11 +114,14 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
     public Object visitCexpr(ChocopyParser.CexprContext ctx) {
 
         if (ctx.ID() !=  null){
-
             if (ctx.PUNTO() !=  null){
+        /*
                 Record r = (Record) visitCexpr(ctx.cexpr(0));
-                symbolTable = (Hashtable<String, Record>) symbolTable.get(r.getType()).getValue();
-
+                ChocopyParser.Class_defContext ctxClass = (ChocopyParser.Class_defContext) symbolTable.get(r.getType()).getValue();
+                UUID id = UUID.randomUUID();
+                callStack.push(id.toString());
+                symbolTables.put(id.toString(), new Hashtable<String, Record>());
+                symbolTable = symbolTables.get(callStack.peek());
                 if (ctx.PAR_IZQ() !=  null){
                     // CEXPR . ID ( EXPR ... )
                     Record result = (Record) func_eval(ctx);
@@ -111,7 +133,10 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 Record r1 = symbolTable.get(ctx.ID().getText());
                 symbolTable = callStack.peek();
                 return r1;
+         */
+                return null;
             }
+
             if (ctx.PAR_IZQ() !=  null){
                 // ID ( EXPR ... )
                 return func_eval(ctx);
@@ -279,8 +304,9 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
     }
 
     public Object func_eval(ChocopyParser.CexprContext ctx){
+
         String funcName = ctx.ID().getText();
-        if (!symbolTable.containsKey(funcName)){
+        if (!symbolTable.containsKey(funcName)){//cambiar
             System.err.println("La funcion " + funcName + " no ha sido declarada");
             System.exit(1);
         }
@@ -295,9 +321,10 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         ChocopyParser.Func_defContext ctxFunc = (ChocopyParser.Func_defContext) record.getValue();
 
         // Set the scope to be inside of the function
-        Hashtable<String, Record> function = new Hashtable<>();
-        callStack.push(function);
-        symbolTable = callStack.peek();
+        UUID id = UUID.randomUUID();
+        callStack.push(id.toString());
+        symbolTables.put(id.toString(), new Hashtable<String, Record>());
+        symbolTable = symbolTables.get(callStack.peek());
 
         // Check if the parameters match
         for (int i = 0; i< ctxFunc.typed_var().size(); i++){
@@ -327,8 +354,8 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             }
         }
         // Set the scope to be outside of the function again
-        callStack.pop();
-        symbolTable = callStack.peek();
+        symbolTables.remove(callStack.pop());
+        symbolTable = symbolTables.get(callStack.peek());
         return func_body;
     }
 }
