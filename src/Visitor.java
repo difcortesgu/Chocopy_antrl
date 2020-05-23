@@ -13,7 +13,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
     @Override
     public Object visitProgram(ChocopyParser.ProgramContext ctx) {
         callStack = new Stack<>();
-        symbolTables = new Hashtable<String, Hashtable<String, Record>>();
+        symbolTables = new Hashtable<>();
         Hashtable<String, Record> program = new Hashtable<>();
         symbolTables.put("program", program);
         callStack.push("program");
@@ -49,7 +49,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         }
         Record func = new Record("func", ctx);
         symbolTable.put(funcName, func);
-        symbolTables.put(funcName, new Hashtable<String, Record>());
+        symbolTables.put(funcName, new Hashtable<>());
         return  null;
     }
 
@@ -62,7 +62,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         if (ctx.NOT() !=  null){
             //NOT EXPR
             Record r = (Record) visitExpr(ctx.expr(0));
-            if (r.getType() != "bool"){
+            if (!r.getType().equals("bool")){
                 System.err.println("La operacion not solo es valida en booleanos, se recibio: \""+r.getType()+"\"");
                 System.exit(1);
             }
@@ -72,7 +72,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             // EXPR AND EXPR
             Record r1 = (Record) visitExpr(ctx.expr(0));
             Record r2 = (Record) visitExpr(ctx.expr(1));
-            if (r1.getType() != "bool" || r2.getType() != "bool"){
+            if (!r1.getType().equals("bool") || !r2.getType().equals("bool")){
                 System.err.println("La operacion and/or solo es valida en booleanos, se recibio: \""+r1.getType()+"\", \""+r2.getType()+"\"");
                 System.exit(1);
             }
@@ -84,7 +84,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         if (ctx.IF() !=  null){
             // EXPR IF EXPR ELSE EXPR
             Record r2 = (Record) visitExpr(ctx.expr(1));
-            if (r2.getType() != "bool"){
+            if (!r2.getType().equals("bool")){
                 System.err.println("La condicion debe ser de tipo booleano, se recibio: \""+r2.getType()+"\"");
                 System.exit(1);
             }
@@ -96,7 +96,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         if (ctx.LEN() !=  null){
             // LEN ( EXPR )
             Record r = (Record) visitExpr(ctx.expr(0));
-            if (r.getType() != "str" || r.getType() != "list"){
+            if (!r.getType().equals("str") || !r.getType().equals("list")){
                 System.err.println("La expresion debe ser de tipo \"lista\" o \"str\", se recibio: \""+r.getType()+"\"");
                 System.exit(1);
             }
@@ -130,6 +130,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 }
 
                 // CEXPR . ID
+                // por aca toca guardar el trace
                 Record r1 = symbolTable.get(ctx.ID().getText());
                 symbolTable = callStack.peek();
                 return r1;
@@ -152,7 +153,9 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 System.err.println("El simbolo "+ varName +" es una funcion, no una variable");
                 System.exit(1);
             }
-            return  symbolTable.get(varName);
+            Record temp = symbolTable.get(varName);
+            temp.addTrace(new Tupla("id",varName));
+            return symbolTable.get(varName);
         }
 
         if (ctx.COR_IZQ() != null){
@@ -173,6 +176,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                     System.err.println("El index no se encuentra en el arreglo");
                     System.exit(1);
                 }
+                cexpr.addTrace(new Tupla("index", expr.getValue()));
                 return ((Object[]) cexpr.getValue())[(int) expr.getValue()];
             }
             // [ EXPR ...]
@@ -323,7 +327,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         // Set the scope to be inside of the function
         UUID id = UUID.randomUUID();
         callStack.push(id.toString());
-        symbolTables.put(id.toString(), new Hashtable<String, Record>());
+        symbolTables.put(id.toString(), new Hashtable<>());
         symbolTable = symbolTables.get(callStack.peek());
 
         // Check if the parameters match
@@ -357,5 +361,139 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         symbolTables.remove(callStack.pop());
         symbolTable = symbolTables.get(callStack.peek());
         return func_body;
+    }
+
+    @Override
+    public Object visitSimple_stmt(ChocopyParser.Simple_stmtContext ctx) {
+        if(ctx.PASS() != null){
+            //pass
+            return null;
+        }
+        if(ctx.RETURN() != null){
+            if(ctx.expr() != null){
+                return visitExpr(ctx.expr());
+            }
+            return null;
+        }
+        if(ctx.PRINT() != null){
+            Record r = (Record) visitExpr(ctx.expr());
+            System.out.println(r.getValue());
+            return null;
+        }
+        if(ctx.target() !=  null){
+            //(target IGUAL)+ expr
+            Record r1 = (Record) visitExpr(ctx.expr());
+            for (int i = 0; i < ctx.target().size(); i++) {
+                Record r2 = (Record) visitTarget(ctx.target(i));
+                if(!r2.getType().equals(r1.getType())){
+                    System.err.println("Los tipos de datos \"" + r2.getType() + "\" y \"" + r1.getType() + "\" no coinciden");
+                    System.exit(1);
+                }
+            }
+            //itera sobre todos los target y dependiendo del tipo de "operacion" y cambia el valor anidado de la tabla de simbolos
+            for (int i = 0; i < ctx.target().size(); i++) {
+                Record temp = null;
+                if(((Record) visitTarget(ctx.target(i))).getTrace() == null) {
+                    System.err.println("No se puede asignar un valor a un resultado anonimo");
+                    System.exit(1);
+                }
+                for (Tupla t : ((Record) visitTarget(ctx.target(i))).getTrace()) {
+                    switch (t.x) {
+                        case "id":
+                            temp = symbolTable.get(t.y);
+                        case "index":
+                            //revisar esto
+                            assert temp != null;
+                            temp.setValue(((Object[]) temp.getValue())[(int) t.y]);
+                        case "member":
+                            //temp.setValue(); revisar
+                        default:
+                            return null;
+                    }
+                }
+            }
+            return null;
+        }
+        if(ctx.expr() != null){
+            //expr
+            visitExpr(ctx.expr());
+            return null;
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitStmt(ChocopyParser.StmtContext ctx) {
+        if(ctx.simple_stmt() != null){
+            //simple_stmt NEWLINE
+            visitSimple_stmt(ctx.simple_stmt());
+            return null;
+        }
+        if(ctx.IF() != null){
+            //IF expr DOS_PUNTOS block (ELIF expr DOS_PUNTOS block )* (ELSE DOS_PUNTOS block)?
+            Record r = (Record) visitExpr(ctx.expr(0));
+            if (!r.getType().equals("bool")){
+                System.err.println("La comparacion solo es valida entre booleanos, se recibio: \""+r.getType()+"\"");
+                System.exit(1);
+            }
+            if(ctx.ELIF() != null){
+                for (int i = 1; i < ctx.expr().size(); i++) {
+                    r = (Record) visitExpr(ctx.expr(i));
+                    if (!r.getType().equals("bool")){
+                        System.err.println("La comparacion solo es valida entre booleanos, se recibio: \""+r.getType()+"\"");
+                        System.exit(1);
+                    }
+                }
+            }
+            for (int i = 0; i < ctx.expr().size(); i++) {
+                r = (Record) visitExpr(ctx.expr(i));
+                if((boolean) r.getValue()){
+                    visitBlock(ctx.block(i));
+                    return null;
+                }
+            }
+            if(ctx.ELSE() != null){
+                visitBlock(ctx.block(ctx.expr().size()-1));
+                return null;
+            }
+        return null;
+        }
+        if(ctx.WHILE() != null){
+            //WHILE expr DOS_PUNTOS block
+            Record r = (Record) visitExpr(ctx.expr(0));
+            if (!r.getType().equals("bool")){
+                System.err.println("La comparacion solo es valida entre booleanos, se recibio: \""+r.getType()+"\"");
+                System.exit(1);
+            }
+            while((boolean) r.getValue()){
+                visitBlock(ctx.block(0));
+            }
+            return null;
+        }
+        if(ctx.FOR() != null){
+            //FOR ID IN expr DOS_PUNTOS block;
+            Record r = (Record) visitExpr(ctx.expr(0));
+            if (!r.getType().equals("list") || !r.getType().equals("str")){
+                System.err.println("Solo es posible iterar sobre listas o strings, se recibio: \""+r.getType()+"\"");
+                System.exit(1);
+            }
+            if(!symbolTable.containsKey(ctx.ID().getText())){
+                System.err.println("La variable " + ctx.ID().getText() + " ya fue declarada");
+                System.exit(1);
+            }
+            for (int i = 0; i < ctx.expr().size(); i++) {
+                visitBlock(ctx.block(0));
+            }
+            return null;
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitBlock(ChocopyParser.BlockContext ctx) {
+        for (int i = 0; i < ctx.stmt().size(); i++) {
+            visitStmt(ctx.stmt(i));
+        }
+        return null;
     }
 }

@@ -93,42 +93,42 @@ tokens { INDENT, DEDENT }
 
 program : (var_def | func_def | class_def )* stmt*;
 
-class_def : 'class' ID PAR_IZQ ID PAR_DER ':' NEWLINE INDENT class_body DEDENT;
+class_def : CLASS ID PAR_IZQ ID PAR_DER DOS_PUNTOS NEWLINE INDENT class_body DEDENT;
 
-class_body : 'pass' NEWLINE | (var_def | func_def)+;
+class_body : PASS NEWLINE | (var_def | func_def)+;
 
-func_def : 'def' ID PAR_IZQ (typed_var (',' typed_var)*)? PAR_DER ('->' type)? ':' NEWLINE INDENT func_body DEDENT;
+func_def : DEF ID PAR_IZQ (typed_var (COMMA typed_var)*)? PAR_DER (EJECUTA type)? DOS_PUNTOS NEWLINE INDENT func_body DEDENT;
 
 func_body : (global_decl | nonlocal_decl | var_def | func_def )* stmt+;
 
-typed_var : ID ':' type;
+typed_var : ID DOS_PUNTOS type;
 
 type : ID
     | IDSTRING
     | COR_IZQ type COR_DER;
 
-global_decl : 'global' ID NEWLINE;
+global_decl : GLOBAL ID NEWLINE;
 
-nonlocal_decl : 'nonlocal' ID NEWLINE;
+nonlocal_decl : NONLOCAL ID NEWLINE;
 
-var_def : typed_var '=' literal NEWLINE;
+var_def : typed_var IGUAL literal NEWLINE;
 
 stmt : simple_stmt NEWLINE
-    | 'if' expr ':' block ('elif' expr ':' block )* ('else' ':' block)?
-    | 'while' expr ':' block
-    | 'for' ID 'in' expr ':' block;
+    | IF expr DOS_PUNTOS block (ELIF expr DOS_PUNTOS block )* (ELSE DOS_PUNTOS block)?
+    | WHILE expr DOS_PUNTOS block
+    | FOR ID IN expr DOS_PUNTOS block;
 
-simple_stmt : 'pass'
+simple_stmt : PASS
     | expr
-    | 'return' expr?
-    | (target '=')+ expr
-    | 'print' PAR_IZQ expr PAR_DER;
+    | RETURN expr?
+    | (target IGUAL)+ expr
+    | PRINT PAR_IZQ expr PAR_DER;
 
 block : NEWLINE INDENT stmt+ DEDENT;
 
-literal : 'None'
-    | 'True'
-    | 'False'
+literal : NONE
+    | TRUE
+    | FALSE
     | INTEGER
     | IDSTRING
     | STRING;
@@ -146,25 +146,25 @@ cexpr : ID
     | COR_IZQ (expr (COMMA expr)*)? COR_DER
     | PAR_IZQ expr PAR_DER
     | cexpr PUNTO ID
-    | cexpr PUNTO ID PAR_IZQ (expr (',' expr)*)? PAR_DER
+    | cexpr PUNTO ID PAR_IZQ (expr (COMMA expr)*)? PAR_DER
     | cexpr COR_IZQ expr COR_DER
-    | ID PAR_IZQ (expr (',' expr)*)? PAR_DER
+    | ID PAR_IZQ (expr (COMMA expr)*)? PAR_DER
     | cexpr bin_op cexpr
     | MENOS cexpr
     ;
 
-bin_op : '+'
+bin_op : MAS
     | MENOS
-    | '*'
-    | '//'
-    | '%'
-    | '=='
-    | '!='
-    | '<='
-    | '>='
-    | '<'
-    | '>'
-    | 'is';
+    | MULTIPLICA
+    | DIV_ENTERA
+    | MODULO
+    | DOBLE_IGUAL
+    | DIFERENTE
+    | MENOR_IGUAL
+    | MAYOR_IGUAL
+    | MENOR
+    | MAYOR
+    | IS;
 
 target : ID
     | cexpr PUNTO ID
@@ -175,6 +175,7 @@ NOT : 'not';
 AND : 'and';
 OR : 'or';
 IF : 'if';
+ELIF: 'elif';
 ELSE : 'else';
 INPUT : 'input';
 PAR_IZQ : '(';
@@ -185,6 +186,35 @@ COR_IZQ : '[';
 COR_DER : ']';
 PUNTO : '.';
 MENOS : '-';
+CLASS: 'class';
+DOS_PUNTOS: ':';
+PASS : 'pass';
+DEF : 'def';
+EJECUTA : '->';
+GLOBAL : 'global';
+NONLOCAL : 'nonlocal';
+DOBLE_IGUAL : '==';
+IGUAL : '=';
+WHILE : 'while';
+FOR : 'for';
+IN : 'in';
+RETURN : 'return';
+PRINT : 'print';
+MAS : '+';
+MULTIPLICA : '*';
+DIV_ENTERA : '//';
+MODULO : '%';
+DIFERENTE : '!=';
+MENOR_IGUAL : '<=';
+MAYOR_IGUAL : '>=';
+MENOR : '<';
+MAYOR : '>';
+IS : 'is';
+NONE: 'None';
+TRUE : 'True';
+FALSE : 'False';
+
+
 
 INTEGER : [1-9][0-9]* | '0';
 ID 		: [a-zA-Z][a-zA-Z0-9_]* ;
