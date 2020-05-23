@@ -496,4 +496,86 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         }
         return null;
     }
+    @Override
+    public Object visitBin_op(ChocopyParser.Bin_opContext ctx) {
+        if (ctx.MAS() != null)
+            return "+";
+        if (ctx.MENOS() != null)
+            return "-";
+        if (ctx.MULTIPLICA()!= null)
+            return "*";
+        if (ctx.DIV_ENTERA() != null)
+            return "//";
+        if (ctx.MODULO()!=null)
+            return "%";
+        if (ctx.DOBLE_IGUAL()!=null)
+            return "==";
+        if (ctx.DIFERENTE()!=null)
+            return "!=";
+        if (ctx.MAYOR_IGUAL()!=null)
+            return ">=";
+        if (ctx.MENOR_IGUAL()!=null)
+            return "<=";
+        if (ctx.MENOR()!=null)
+            return "<";
+        if (ctx.MAYOR()!=null)
+            return ">";
+        if (ctx.IS()!=null)
+            return "is";
+        return null;
+    }
+    @Override public Object visitLiteral(ChocopyParser.LiteralContext ctx){
+
+        if (ctx.getText().equals("None"))
+            return new Record("None", "None");
+        if (ctx.getText().equals("True"))
+            return new Record("bool", "True");
+        if (ctx.getText().equals("False"))
+            return new Record("bool", "False");
+        if (ctx.IDSTRING()!= null)
+            return new Record("str", (String) ctx.IDSTRING().getText());
+        if (ctx.INTEGER()!= null)
+            return new Record("int", Integer.parseInt(ctx.INTEGER().getText()));
+        if (ctx.STRING()!= null)
+            return new Record("str", (String) ctx.STRING().getText());
+        return null;
+    }
+    @Override public Object visitVar_def(ChocopyParser.Var_defContext ctx){
+        System.out.println(ctx.getText());
+        String varName = ctx.typed_var().ID().getText();
+        if (symbolTable.containsKey(varName)){
+            System.err.println("La variable " + varName + " ya fue declarada");
+            System.exit(1);
+        }
+        Record literal = (Record)visitLiteral(ctx.literal());
+        Record type = (Record) visitType(ctx.typed_var().type());
+
+        if (!(literal.getType().equals(type.getValue()))){
+            if(!(literal.getValue().equals("None")&& ctx.typed_var().type().COR_DER()!=null)) {
+                System.err.println("No se puede asignar un " + type.getValue() + " a una variable " + literal.getType());
+                System.exit(1);
+            }
+        }
+
+        Record var = new Record("var", ctx);
+        symbolTable.put(varName, var);
+        symbolTables.put(varName, new Hashtable<String, Record>());
+        return  null;
+    }
+    @Override public Object visitTyped_var(ChocopyParser.Typed_varContext ctx){
+        if (ctx.ID()!= null){
+            if (ctx.type()!= null)
+                return visitType(ctx.type());
+        }
+        return null;
+    }
+    @Override public Object visitType(ChocopyParser.TypeContext ctx){
+        if (ctx.ID()!= null)
+            return new Record("str", (String) ctx.ID().getText());
+        if (ctx.IDSTRING()!= null)
+            return new Record("str", (String) ctx.IDSTRING().getText());
+        if (ctx.COR_DER()!= null)
+            return visitType(ctx.type());
+        return null;
+    }
 }
