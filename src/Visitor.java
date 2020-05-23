@@ -20,6 +20,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         symbolTable = symbolTables.get(callStack.peek());
         return  super.visitProgram(ctx);
     }
+
     /*
     @Override
     public Object visitClass_def(ChocopyParser.Class_defContext ctx) {
@@ -40,6 +41,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         return  null;
     }
     */
+
     @Override
     public Object visitFunc_def(ChocopyParser.Func_defContext ctx) {
         String funcName = ctx.ID().getText();
@@ -105,7 +107,8 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         if (ctx.INPUT() !=  null){
             // INPUT ( )
             Scanner s = new Scanner(System.in);
-            return new Record("str", s.next());
+            String text = s.nextLine();
+            return new Record("str", text);
         }
         return null;
     }
@@ -351,7 +354,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         Record func_body =  (Record) visitFunc_body(ctxFunc.func_body());
 
         if (ctxFunc.type() != null){
-            String type = (String) visitType(ctxFunc.type());
+            String type = (String) ((Record) visitType(ctxFunc.type())).getValue();
             if (!func_body.getType().equals(type)){
                 System.err.println("La funcion \""+funcName+"\" debe retornar el tipo \""+type+"\" y se encontro el tipo \""+func_body.getType()+"\"");
                 System.exit(1);
@@ -496,6 +499,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         }
         return null;
     }
+
     @Override
     public Object visitBin_op(ChocopyParser.Bin_opContext ctx) {
         if (ctx.MAS() != null)
@@ -524,14 +528,15 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             return "is";
         return null;
     }
+
     @Override public Object visitLiteral(ChocopyParser.LiteralContext ctx){
 
         if (ctx.getText().equals("None"))
             return new Record("None", "None");
         if (ctx.getText().equals("True"))
-            return new Record("bool", "True");
+            return new Record("bool", true);
         if (ctx.getText().equals("False"))
-            return new Record("bool", "False");
+            return new Record("bool", false);
         if (ctx.IDSTRING()!= null)
             return new Record("str", (String) ctx.IDSTRING().getText());
         if (ctx.INTEGER()!= null)
@@ -540,6 +545,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             return new Record("str", (String) ctx.STRING().getText());
         return null;
     }
+
     @Override public Object visitVar_def(ChocopyParser.Var_defContext ctx){
         System.out.println(ctx.getText());
         String varName = ctx.typed_var().ID().getText();
@@ -562,6 +568,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         symbolTables.put(varName, new Hashtable<String, Record>());
         return  null;
     }
+
     @Override public Object visitTyped_var(ChocopyParser.Typed_varContext ctx){
         if (ctx.ID()!= null){
             if (ctx.type()!= null)
@@ -569,6 +576,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         }
         return null;
     }
+
     @Override public Object visitType(ChocopyParser.TypeContext ctx){
         if (ctx.ID()!= null)
             return new Record("str", (String) ctx.ID().getText());
@@ -577,5 +585,32 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         if (ctx.COR_DER()!= null)
             return visitType(ctx.type());
         return null;
+    }
+
+    @Override
+    public Object visitFunc_body(ChocopyParser.Func_bodyContext ctx) {
+
+        for (int i = 0; i < ctx.global_decl().size(); i++) {
+            visitGlobal_decl(ctx.global_decl(i));
+        }
+        for (int i = 0; i < ctx.nonlocal_decl().size(); i++) {
+            visitNonlocal_decl(ctx.nonlocal_decl(i));
+        }
+        for (int i = 0; i < ctx.var_def().size(); i++) {
+            visitVar_def(ctx.var_def(i));
+        }
+        for (int i = 0; i < ctx.global_decl().size(); i++) {
+
+        }
+        for (int i = 0; i < ctx.stmt().size(); i++) {
+            visitStmt(ctx.stmt(i));
+        }
+
+        return null;
+    }
+
+    @Override
+    public Object visitTarget(ChocopyParser.TargetContext ctx) {
+        return new Record("str", ctx.ID().getText());
     }
 }

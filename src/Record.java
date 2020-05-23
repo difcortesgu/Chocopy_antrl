@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Record {
@@ -9,12 +10,7 @@ public class Record {
     public Record(String type, Object value) {
         this.type = type;
         this.value = value;
-    }
-
-    public Record(String type, Object value, List<Tupla> id) {
-        this.type = type;
-        this.value = value;
-        this.id = id;
+        this.id = new ArrayList<>();
     }
 
     public String getType() {

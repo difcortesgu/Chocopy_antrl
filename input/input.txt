@@ -1,12 +1,5 @@
-def foo(s: str) -> int:
-    return len(s)
+s: str = "hola"
 
-
-
-x = [1, 2]
-y = [None]
-x[0] = 3
-x[1] = y[0] = 4
-print(f)
-c = (c + 2 // b) *  (a - 42)
-f = False
+while len(s) > 0:
+    print(s)
+    s = input()
