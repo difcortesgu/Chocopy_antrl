@@ -42,40 +42,6 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         }
         return null;
     }
-
-    /*
-    @Override
-    public Object visitClass_def(ChocopyParser.Class_defContext ctx) {
-        String className = ctx.ID(0).getText();
-        String parentName = ctx.ID(1).getText();
-
-        if (symbolTable.containsKey(className)){
-            System.err.println("La clase " + className + " ya fue definida");
-            System.exit(1);
-        }
-        if (!symbolTable.containsKey(parentName)){
-            System.err.println("La clase " + parentName + " no ha sido definida");
-            System.exit(1);
-        }
-        Record new_class = new Record("class", ctx);
-        symbolTable.put(className, new_class);
-
-        return  null;
-    }
-    */
-
-    @Override
-    public Object visitFunc_def(ChocopyParser.Func_defContext ctx) {
-        String funcName = ctx.ID().getText();
-        if (symbolTable.containsKey(funcName)){
-            System.err.println("La funcion " + funcName + " ya fue declarada");
-            System.exit(1);
-        }
-        Record func = new Record("func", ctx);
-        symbolTable.put(funcName, func);
-        symbolTables.put(funcName, new Hashtable<>());
-        return  null;
-    }
     
     @Override
     public Object visitSimple_stmt(ChocopyParser.Simple_stmtContext ctx) {
@@ -230,27 +196,6 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         return null;
     }
 
-    @Override public Object visitVar_def(ChocopyParser.Var_defContext ctx){
-        String varName = ctx.typed_var().ID().getText();
-        if (symbolTable.containsKey(varName)){
-            System.err.println("La variable " + varName + " ya fue declarada");
-            System.exit(1);
-        }
-        Record literal = (Record)visitLiteral(ctx.literal());
-        Record type = (Record) visitType(ctx.typed_var().type());
-
-        if (!(literal.getType().equals(type.getValue()))){
-            if(!(literal.getValue().equals("None")&& ctx.typed_var().type().COR_DER()!=null)) {
-                System.err.println("No se puede asignar un " + type.getValue() + " a una variable " + literal.getType());
-                System.exit(1);
-            }
-        }
-
-        Record var = new Record((String) type.getValue(), literal.getValue());
-        symbolTable.put(varName, var);
-        return  null;
-    }
-
     @Override public Object visitTyped_var(ChocopyParser.Typed_varContext ctx){
         if (ctx.ID()!= null){
             Record r = (Record) visitType(ctx.type());
@@ -269,36 +214,6 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         }
         if (ctx.COR_DER()!= null){
             return new Record("str", "list");
-        }
-        return null;
-    }
-
-    @Override
-    public Object visitFunc_body(ChocopyParser.Func_bodyContext ctx) {
-
-        if (!ctx.stmt().isEmpty()){
-            for (int i = 0; i < ctx.stmt().size(); i++) {
-                Record r = (Record) visitStmt(ctx.stmt(i));
-                 if (r != null && !r.getValue().equals("")) {
-                    return r;
-                }
-            }
-        }
-        if (ctx.global_decl() != null){
-            visitGlobal_decl(ctx.global_decl());
-            return visitFunc_body(ctx.func_body());
-        }
-        if (ctx.nonlocal_decl() != null){
-            visitNonlocal_decl(ctx.nonlocal_decl());
-            return visitFunc_body(ctx.func_body());
-        }
-        if (ctx.var_def() != null){
-            visitVar_def(ctx.var_def());
-            return visitFunc_body(ctx.func_body());
-        }
-        if (ctx.func_def() != null){
-            visitFunc_def(ctx.func_def());
-            return visitFunc_body(ctx.func_body());
         }
         return null;
     }
@@ -340,105 +255,6 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         if (ctx.MODULO()!=null)
             return "%";
         return null;
-    }
-
-
-    //-------------------------------------------------------------------------------------
-    //-------------------------------------------------------------------------------------
-    //-------------------------------------------------------------------------------------
-    //-------------------------------------------------------------------------------------
-
-
-    @Override
-    public Object visitTarget(ChocopyParser.TargetContext ctx) {
-        if(ctx.ID() !=  null){
-            Record r = new Record("str", ctx.ID().getText());
-            r.addTrace(new Tupla("id", ctx.ID().getText()));
-            return r;
-        }
-        if(ctx.PUNTO() != null){
-            // Record r = (Record) visitSimple_value(ctx.simple_value());
-            // r.addTrace(new Tupla("member", ctx.ID().getText()));
-            // return r;
-            return null;
-        }
-        if(ctx.COR_IZQ() != null){
-            Record r = (Record) visitSimple_value(ctx.simple_value());
-            Record i = (Record) visitExpr(ctx.expr());
-            if (!r.getType().equals("list") && !r.getType().equals("str")){
-                System.err.println("La operacion [] no esta permitida para tipos de dato diferentes a \"str\", \"list\"");
-                System.exit(1);
-            }
-            if (!i.getType().equals("int")){
-                System.err.println("El index debe ser de tipo \"int\"");
-                System.exit(1);
-            }
-            if ((int) i.getValue() >= ((Object[]) r.getValue()).length){
-                System.err.println("El index no se encuentra en el arreglo");
-                System.exit(1);
-            }
-            r.addTrace(new Tupla("index", i.getValue()));
-            return r;
-        }
-        return null;
-    }
-
-    public Object func_eval(ChocopyParser.Simple_valueContext ctx){
-
-        String funcName = ctx.ID().getText();
-        if (!symbolTable.containsKey(funcName)){//cambiar
-            System.err.println("La funcion " + funcName + " no ha sido declarada");
-            System.exit(1);
-        }
-
-        if (!symbolTable.get(funcName).getType().equals("func")){
-            System.err.println("La variable " + funcName + " no es una funcion");
-            System.exit(1);
-        }
-
-        //Get the context of the function
-        Record record = symbolTable.get(funcName);
-        ChocopyParser.Func_defContext ctxFunc = (ChocopyParser.Func_defContext) record.getValue();
-
-        // Set the scope to be inside of the function
-        UUID id = UUID.randomUUID();
-        callStack.push(id.toString());
-        symbolTables.put(id.toString(), new Hashtable<>());
-        symbolTable = symbolTables.get(callStack.peek());
-
-        // Check if the parameters match
-        for (int i = 0; i< ctxFunc.typed_var().size(); i++){
-            // Inside of this function params must be declared in the symbol table
-            try {
-                String param = (String) visitTyped_var(ctxFunc.typed_var(i));
-                Record expr = (Record) visitExpr(ctx.expr(i));
-
-                if (! expr.getType().equals(symbolTable.get(param).getType())){
-                    System.err.println("El parametro "+ param +" debe ser de tipo \""+ symbolTable.get(param).getType() +"\" y se recibio \""+ expr.getType() +"\"");
-                    System.exit(1);
-                }
-
-                symbolTable.get(param).setValue(expr.getValue());
-
-            }catch (IndexOutOfBoundsException e){
-                System.err.println("El numero de parametros no coincide");
-                System.exit(1);
-            }
-        }
-
-        Record func_body =  (Record) visitFunc_body(ctxFunc.func_body());
-
-        if (ctxFunc.type() != null){
-            String type = (String) ((Record) visitType(ctxFunc.type())).getValue();
-            if (!func_body.getType().equals(type)){
-                System.err.println("La funcion \""+funcName+"\" debe retornar el tipo \""+type+"\" y se encontro el tipo \""+func_body.getType()+"\"");
-                System.exit(1);
-            }
-        }
-        // Set the scope to be outside of the function again
-        symbolTables.remove(callStack.pop());
-        symbolTable = symbolTables.get(callStack.peek());
-        return func_body;
     }
 
     @Override
@@ -491,24 +307,6 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
     }
 
     @Override
-    public Object visitSimple_expr(ChocopyParser.Simple_exprContext ctx) {
-        if (ctx.cexpr() != null){
-            //cexpr
-            return visitCexpr(ctx.cexpr());
-        }
-        if (ctx.NOT() !=  null){
-            //NOT EXPR
-            Record r = (Record) visitSimple_expr(ctx.simple_expr());
-            if (!r.getType().equals("bool")){
-                System.err.println("La operacion not solo es valida en booleanos, se recibio: \""+r.getType()+"\"");
-                System.exit(1);
-            }
-            return ! (boolean)((Record) visitSimple_expr(ctx.simple_expr())).getValue();
-        }
-        return null;
-    }
-
-    @Override
     public Object visitCexpr(ChocopyParser.CexprContext ctx) {
         if (ctx.cexpr() != null){
             //cexpr_sum op_suma cexpr_mul
@@ -547,6 +345,187 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         }
         //simple_value
         return visitSimple_value(ctx.simple_value());
+    }
+
+    public Record evalOp( Record r1, Record r2, String op ){
+
+        // Check for operation compatibility
+        try {
+            switch (r1.getType()) {
+                case "int":
+                    if (!r2.getType().equals("int"))
+                        throw new Exception();
+                    if (op.equals("is"))
+                        throw new Exception();
+                    break;
+                case "bool":
+                    if (!r2.getType().equals("bool"))
+                        throw new Exception();
+                    if (!op.equals("==") && !op.equals("!="))
+                        throw new Exception();
+                    break;
+                case "str":
+                    if (!r2.getType().equals("str"))
+                        throw new Exception();
+                    if (!op.equals("==") && !op.equals("!=") && !op.equals("+"))
+                        throw new Exception();
+                    break;
+                case "list":
+                    if (!r2.getType().equals("list") && !op.equals("is"))
+                        throw new Exception();
+                    if (!op.equals("+") && !op.equals("is"))
+                        throw new Exception();
+                    break;
+                default:
+                    if (!op.equals("is"))
+                        throw new Exception();
+                    break;
+            }
+        }catch (Exception e){
+            System.err.println("La operacion \""+op+"\" no esta permitida entre los tipos de datos "+r1.getType()+" y "+r2.getType());
+            System.exit(1);
+        }
+
+        switch (op){
+            case "+":
+                if (r1.getType().equals("int")){
+                    return new Record("int", (int) r1.getValue() + (int) r2.getValue());
+                }
+                else if (r1.getType().equals("str")){
+                    return new Record("str", r1.getValue().toString() + r2.getValue().toString());
+                }
+                else{
+                    Object[] l1 = (Object[]) r1.getValue();
+                    Object[] l2 = (Object[]) r2.getValue();
+                    Object[] new_array = new Object[l1.length + l2.length];
+                    System.arraycopy(l1, 0, new_array, 0, l1.length);
+                    System.arraycopy(l2, 0, new_array, l1.length, l2.length);
+                    return  new Record("list", new_array);
+                }
+            case "-":
+                return new Record("int", (int) r1.getValue() - (int) r2.getValue());
+            case "*":
+                return new Record("int", (int) r1.getValue() * (int) r2.getValue());
+            case "//":
+                if((int) r2.getValue() == 0){
+                    System.err.println("No esta permitida la division entre 0");
+                    System.exit(1);
+                }
+                return new Record("int", ((int) r1.getValue() - ((int) r1.getValue() % (int) r2.getValue())) / (int) r2.getValue());
+            case "%":
+                if((int) r2.getValue() == 0){
+                    System.err.println("No esta permitida la division entre 0");
+                    System.exit(1);
+                }
+                return new Record("int", (int) r1.getValue() % (int) r2.getValue());
+            case "==":
+                // Esto puede fallar
+                return switch (r1.getType()) {
+                    case "int" -> new Record("bool", (int) r1.getValue() == (int) r2.getValue());
+                    // case "str" -> new Record("bool", r1.getValue().equals(r2.getValue()));
+                    case "bool" -> new Record("bool", (boolean) r1.getValue() == (boolean) r2.getValue());
+                    default -> new Record("bool", r1.getValue().equals(r2.getValue()));
+                };
+            case "!=":
+                // Esto puede fallar
+                return switch (r1.getType()) {
+                    case "int" -> new Record("bool", (int) r1.getValue() != (int) r2.getValue());
+                    // case "str" -> new Record("bool", !(r1.getValue()).equals(r2.getValue()));
+                    case "bool" -> new Record("bool", (boolean) r1.getValue() != (boolean) r2.getValue());
+                    default -> new Record("bool", !r1.getValue().equals(r2.getValue()));
+                };
+            case "<=":
+                return  new Record("bool", (int) r1.getValue() <= (int) r2.getValue());
+            case ">=":
+                return  new Record("bool", (int) r1.getValue() >= (int) r2.getValue());
+            case "<":
+                return  new Record("bool", (int) r1.getValue() < (int) r2.getValue());
+            case ">":
+                return  new Record("bool", (int) r1.getValue() > (int) r2.getValue());
+            case "is":
+                return  new Record("bool", r1.getValue() == r2.getValue());
+        }
+        return null;
+    }
+
+
+    //-------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------
+
+    @Override
+    public Object visitVar_def(ChocopyParser.Var_defContext ctx){
+        String varName = ctx.typed_var().ID().getText();
+        if (symbolTable.containsKey(varName)){
+            System.err.println("La variable " + varName + " ya fue declarada");
+            System.exit(1);
+        }
+        Record literal = (Record)visitLiteral(ctx.literal());
+        Record type = (Record) visitType(ctx.typed_var().type());
+
+        if (!(literal.getType().equals(type.getValue()))){
+            if(!(literal.getValue().equals("None")&& ctx.typed_var().type().COR_DER()!=null)) {
+                System.err.println("No se puede asignar un " + type.getValue() + " a una variable " + literal.getType());
+                System.exit(1);
+            }
+        }
+
+        Record var = new Record((String) type.getValue(), literal.getValue());
+        symbolTable.put(varName, var);
+        return  null;
+    }
+
+    @Override
+    public Object visitTarget(ChocopyParser.TargetContext ctx) {
+        if(ctx.ID() !=  null){
+            Record r = new Record("str", ctx.ID().getText());
+            r.addTrace(new Tupla("id", ctx.ID().getText()));
+            return r;
+        }
+        if(ctx.PUNTO() != null){
+            // Record r = (Record) visitSimple_value(ctx.simple_value());
+            // r.addTrace(new Tupla("member", ctx.ID().getText()));
+            // return r;
+            return null;
+        }
+        if(ctx.COR_IZQ() != null){
+            Record r = (Record) visitSimple_value(ctx.simple_value());
+            Record i = (Record) visitExpr(ctx.expr());
+            if (!r.getType().equals("list") && !r.getType().equals("str")){
+                System.err.println("La operacion [] no esta permitida para tipos de dato diferentes a \"str\", \"list\"");
+                System.exit(1);
+            }
+            if (!i.getType().equals("int")){
+                System.err.println("El index debe ser de tipo \"int\"");
+                System.exit(1);
+            }
+            if ((int) i.getValue() >= ((Object[]) r.getValue()).length){
+                System.err.println("El index no se encuentra en el arreglo");
+                System.exit(1);
+            }
+            r.addTrace(new Tupla("index", i.getValue()));
+            return r;
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitSimple_expr(ChocopyParser.Simple_exprContext ctx) {
+        if (ctx.cexpr() != null){
+            //cexpr
+            return visitCexpr(ctx.cexpr());
+        }
+        if (ctx.NOT() !=  null){
+            //NOT EXPR
+            Record r = (Record) visitSimple_expr(ctx.simple_expr());
+            if (!r.getType().equals("bool")){
+                System.err.println("La operacion not solo es valida en booleanos, se recibio: \""+r.getType()+"\"");
+                System.exit(1);
+            }
+            return ! (boolean)((Record) visitSimple_expr(ctx.simple_expr())).getValue();
+        }
+        return null;
     }
 
     @Override
@@ -665,105 +644,161 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
 
         return null;
     }
-    
-    public Record evalOp( Record r1, Record r2, String op ){
 
-        // Check for operation compatibility
-        try {
-            switch (r1.getType()) {
-                case "int":
-                    if (!r2.getType().equals("int"))
-                        throw new Exception();
-                    if (op.equals("is"))
-                        throw new Exception();
-                    break;
-                case "bool":
-                    if (!r2.getType().equals("bool"))
-                        throw new Exception();
-                    if (!op.equals("==") && !op.equals("!="))
-                        throw new Exception();
-                    break;
-                case "str":
-                    if (!r2.getType().equals("str"))
-                        throw new Exception();
-                    if (!op.equals("==") && !op.equals("!=") && !op.equals("+"))
-                        throw new Exception();
-                    break;
-                case "list":
-                    if (!r2.getType().equals("list") && !op.equals("is"))
-                        throw new Exception();
-                    if (!op.equals("+") && !op.equals("is"))
-                        throw new Exception();
-                    break;
-                default:
-                    if (!op.equals("is"))
-                        throw new Exception();
-                    break;
+    @Override
+    public Object visitClass_def(ChocopyParser.Class_defContext ctx) {
+        String className = ctx.ID(0).getText();
+        String parentName = ctx.ID(1).getText();
+
+        if (symbolTable.containsKey(className)){
+            System.err.println("La clase " + className + " ya fue definida");
+            System.exit(1);
+        }
+        if (!symbolTable.containsKey(parentName)){
+            System.err.println("La clase " + parentName + " no ha sido definida");
+            System.exit(1);
+        }
+        Record new_class = new Record("class", ctx);
+        symbolTable.put(className, new_class);
+
+        return  null;
+    }
+
+    @Override
+    public Object visitFunc_def(ChocopyParser.Func_defContext ctx) {
+        String funcName = ctx.ID().getText();
+        if (symbolTable.containsKey(funcName)){
+            System.err.println("La funcion " + funcName + " ya fue declarada");
+            System.exit(1);
+        }
+        Record func = new Record("func", ctx);
+        symbolTable.put(funcName, func);
+        symbolTables.put(funcName, new Hashtable<>());
+        return  null;
+    }
+
+    @Override
+    public Object visitFunc_body(ChocopyParser.Func_bodyContext ctx) {
+
+        if (!ctx.stmt().isEmpty()){
+            for (int i = 0; i < ctx.stmt().size(); i++) {
+                Record r = (Record) visitStmt(ctx.stmt(i));
+                if (r != null && !r.getValue().equals("")) {
+                    return r;
+                }
             }
-        }catch (Exception e){
-            System.err.println("La operacion \""+op+"\" no esta permitida entre los tipos de datos "+r1.getType()+" y "+r2.getType());
+        }
+        if (ctx.global_decl() != null){
+            visitGlobal_decl(ctx.global_decl());
+            return visitFunc_body(ctx.func_body());
+        }
+        if (ctx.nonlocal_decl() != null){
+            visitNonlocal_decl(ctx.nonlocal_decl());
+            return visitFunc_body(ctx.func_body());
+        }
+        if (ctx.var_def() != null){
+            visitVar_def(ctx.var_def());
+            return visitFunc_body(ctx.func_body());
+        }
+        if (ctx.func_def() != null){
+            visitFunc_def(ctx.func_def());
+            return visitFunc_body(ctx.func_body());
+        }
+        return null;
+    }
+
+    public Object func_eval(ChocopyParser.Simple_valueContext ctx){
+
+        String funcName = ctx.ID().getText();
+        if (!symbolTable.containsKey(funcName)){//cambiar
+            System.err.println("La funcion " + funcName + " no ha sido declarada");
             System.exit(1);
         }
 
-        switch (op){
-            case "+":
-                if (r1.getType().equals("int")){
-                    return new Record("int", (int) r1.getValue() + (int) r2.getValue());
-                }
-                else if (r1.getType().equals("str")){
-                    return new Record("str", r1.getValue().toString() + r2.getValue().toString());
-                }
-                else{
-                    Object[] l1 = (Object[]) r1.getValue();
-                    Object[] l2 = (Object[]) r2.getValue();
-                    Object[] new_array = new Object[l1.length + l2.length];
-                    System.arraycopy(l1, 0, new_array, 0, l1.length);
-                    System.arraycopy(l2, 0, new_array, l1.length, l2.length);
-                    return  new Record("list", new_array);
-                }
-            case "-":
-                return new Record("int", (int) r1.getValue() - (int) r2.getValue());
-            case "*":
-                return new Record("int", (int) r1.getValue() * (int) r2.getValue());
-            case "//":
-                if((int) r2.getValue() == 0){
-                    System.err.println("No esta permitida la division entre 0");
-                    System.exit(1);
-                }
-                return new Record("int", ((int) r1.getValue() - ((int) r1.getValue() % (int) r2.getValue())) / (int) r2.getValue());
-            case "%":
-                if((int) r2.getValue() == 0){
-                    System.err.println("No esta permitida la division entre 0");
-                    System.exit(1);
-                }
-                return new Record("int", (int) r1.getValue() % (int) r2.getValue());
-            case "==":
-                // Esto puede fallar
-                return switch (r1.getType()) {
-                    case "int" -> new Record("bool", (int) r1.getValue() == (int) r2.getValue());
-                    // case "str" -> new Record("bool", r1.getValue().equals(r2.getValue()));
-                    case "bool" -> new Record("bool", (boolean) r1.getValue() == (boolean) r2.getValue());
-                    default -> new Record("bool", r1.getValue().equals(r2.getValue()));
-                };
-            case "!=":
-                // Esto puede fallar
-                return switch (r1.getType()) {
-                    case "int" -> new Record("bool", (int) r1.getValue() != (int) r2.getValue());
-                    // case "str" -> new Record("bool", !(r1.getValue()).equals(r2.getValue()));
-                    case "bool" -> new Record("bool", (boolean) r1.getValue() != (boolean) r2.getValue());
-                    default -> new Record("bool", !r1.getValue().equals(r2.getValue()));
-                };
-            case "<=":
-                return  new Record("bool", (int) r1.getValue() <= (int) r2.getValue());
-            case ">=":
-                return  new Record("bool", (int) r1.getValue() >= (int) r2.getValue());
-            case "<":
-                return  new Record("bool", (int) r1.getValue() < (int) r2.getValue());
-            case ">":
-                return  new Record("bool", (int) r1.getValue() > (int) r2.getValue());
-            case "is":
-                return  new Record("bool", r1.getValue() == r2.getValue());
+        if (!symbolTable.get(funcName).getType().equals("func")){
+            System.err.println("La variable " + funcName + " no es una funcion");
+            System.exit(1);
         }
-        return null;
+
+        //Get the context of the function
+        Record record = symbolTable.get(funcName);
+        ChocopyParser.Func_defContext ctxFunc = (ChocopyParser.Func_defContext) record.getValue();
+
+        // Set the scope to be inside of the function
+        UUID id = UUID.randomUUID();
+        callStack.push(id.toString());
+        symbolTables.put(id.toString(), new Hashtable<>());
+        symbolTable = symbolTables.get(callStack.peek());
+
+        // Check if the parameters match
+        for (int i = 0; i< ctxFunc.typed_var().size(); i++){
+            // Inside of this function params must be declared in the symbol table
+            try {
+                String param = (String) visitTyped_var(ctxFunc.typed_var(i));
+                Record expr = (Record) visitExpr(ctx.expr(i));
+
+                if (! expr.getType().equals(symbolTable.get(param).getType())){
+                    System.err.println("El parametro "+ param +" debe ser de tipo \""+ symbolTable.get(param).getType() +"\" y se recibio \""+ expr.getType() +"\"");
+                    System.exit(1);
+                }
+
+                symbolTable.get(param).setValue(expr.getValue());
+
+            }catch (IndexOutOfBoundsException e){
+                System.err.println("El numero de parametros no coincide");
+                System.exit(1);
+            }
+        }
+
+        Record func_body =  (Record) visitFunc_body(ctxFunc.func_body());
+
+        if (ctxFunc.type() != null){
+            String type = (String) ((Record) visitType(ctxFunc.type())).getValue();
+            if (!func_body.getType().equals(type)){
+                System.err.println("La funcion \""+funcName+"\" debe retornar el tipo \""+type+"\" y se encontro el tipo \""+func_body.getType()+"\"");
+                System.exit(1);
+            }
+        }
+        // Set the scope to be outside of the function again
+        symbolTables.remove(callStack.pop());
+        symbolTable = symbolTables.get(callStack.peek());
+        return func_body;
+    }
+
+
+    //-----------------------------------------------------------
+    //-----------------------------------------------------------
+    //-----------------------------------------------------------
+    //-----------------------------------------------------------
+    //-----------------------------------------------------------
+
+    //Search inside functions that aren't inside a class
+    public Record searchID(String id){}
+
+    //Search until it reaches a class
+    public Record searchIDinMethod(){}
+
+    //Search inside classes and its parents
+    public Record searchClassMember(){}
+
+    public Record searchGlobal(){}
+
+    public boolean isClass_(){}
+
+    public boolean isFunc(){}
+
+    //Checks if you've reached the top-level context
+    public boolean isProgram(){}
+
+    @Override
+    public Object visitGlobal_decl(ChocopyParser.Global_declContext ctx) {
+        return super.visitGlobal_decl(ctx);
+    }
+
+    public Record searchNonlocal(){}
+
+    @Override
+    public Object visitNonlocal_decl(ChocopyParser.Nonlocal_declContext ctx) {
+        return super.visitNonlocal_decl(ctx);
     }
 }
