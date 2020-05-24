@@ -157,6 +157,36 @@ public interface ChocopyListener extends ParseTreeListener {
 	 */
 	void exitExpr(ChocopyParser.ExprContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ChocopyParser#expr_or}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpr_or(ChocopyParser.Expr_orContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ChocopyParser#expr_or}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpr_or(ChocopyParser.Expr_orContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ChocopyParser#expr_and}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpr_and(ChocopyParser.Expr_andContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ChocopyParser#expr_and}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpr_and(ChocopyParser.Expr_andContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ChocopyParser#simple_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimple_expr(ChocopyParser.Simple_exprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ChocopyParser#simple_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimple_expr(ChocopyParser.Simple_exprContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ChocopyParser#cexpr}.
 	 * @param ctx the parse tree
 	 */
@@ -167,15 +197,65 @@ public interface ChocopyListener extends ParseTreeListener {
 	 */
 	void exitCexpr(ChocopyParser.CexprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ChocopyParser#bin_op}.
+	 * Enter a parse tree produced by {@link ChocopyParser#cexpr_sum}.
 	 * @param ctx the parse tree
 	 */
-	void enterBin_op(ChocopyParser.Bin_opContext ctx);
+	void enterCexpr_sum(ChocopyParser.Cexpr_sumContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ChocopyParser#bin_op}.
+	 * Exit a parse tree produced by {@link ChocopyParser#cexpr_sum}.
 	 * @param ctx the parse tree
 	 */
-	void exitBin_op(ChocopyParser.Bin_opContext ctx);
+	void exitCexpr_sum(ChocopyParser.Cexpr_sumContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ChocopyParser#cexpr_mul}.
+	 * @param ctx the parse tree
+	 */
+	void enterCexpr_mul(ChocopyParser.Cexpr_mulContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ChocopyParser#cexpr_mul}.
+	 * @param ctx the parse tree
+	 */
+	void exitCexpr_mul(ChocopyParser.Cexpr_mulContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ChocopyParser#simple_value}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimple_value(ChocopyParser.Simple_valueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ChocopyParser#simple_value}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimple_value(ChocopyParser.Simple_valueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ChocopyParser#cmp}.
+	 * @param ctx the parse tree
+	 */
+	void enterCmp(ChocopyParser.CmpContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ChocopyParser#cmp}.
+	 * @param ctx the parse tree
+	 */
+	void exitCmp(ChocopyParser.CmpContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ChocopyParser#op_suma}.
+	 * @param ctx the parse tree
+	 */
+	void enterOp_suma(ChocopyParser.Op_sumaContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ChocopyParser#op_suma}.
+	 * @param ctx the parse tree
+	 */
+	void exitOp_suma(ChocopyParser.Op_sumaContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ChocopyParser#op_mul}.
+	 * @param ctx the parse tree
+	 */
+	void enterOp_mul(ChocopyParser.Op_mulContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ChocopyParser#op_mul}.
+	 * @param ctx the parse tree
+	 */
+	void exitOp_mul(ChocopyParser.Op_mulContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ChocopyParser#target}.
 	 * @param ctx the parse tree

@@ -1,5 +1,5 @@
-s: str = "hola"
+def f() -> int:
+    x:int = 1
+    return x
 
-while len(s) > 0:
-    print(s)
-    s = input()
+print(f())

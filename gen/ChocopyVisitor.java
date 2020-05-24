@@ -100,17 +100,65 @@ public interface ChocopyVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpr(ChocopyParser.ExprContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ChocopyParser#expr_or}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_or(ChocopyParser.Expr_orContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ChocopyParser#expr_and}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_and(ChocopyParser.Expr_andContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ChocopyParser#simple_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSimple_expr(ChocopyParser.Simple_exprContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ChocopyParser#cexpr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitCexpr(ChocopyParser.CexprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ChocopyParser#bin_op}.
+	 * Visit a parse tree produced by {@link ChocopyParser#cexpr_sum}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitBin_op(ChocopyParser.Bin_opContext ctx);
+	T visitCexpr_sum(ChocopyParser.Cexpr_sumContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ChocopyParser#cexpr_mul}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCexpr_mul(ChocopyParser.Cexpr_mulContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ChocopyParser#simple_value}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSimple_value(ChocopyParser.Simple_valueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ChocopyParser#cmp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCmp(ChocopyParser.CmpContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ChocopyParser#op_suma}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOp_suma(ChocopyParser.Op_sumaContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ChocopyParser#op_mul}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOp_mul(ChocopyParser.Op_mulContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ChocopyParser#target}.
 	 * @param ctx the parse tree

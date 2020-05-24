@@ -91,7 +91,10 @@ tokens { INDENT, DEDENT }
   }
 }
 
-program : (var_def | func_def | class_def )* stmt*;
+program : var_def program
+    | func_def program
+    | class_def program
+    | stmt*;
 
 class_def : CLASS ID PAR_IZQ ID PAR_DER DOS_PUNTOS NEWLINE INDENT class_body DEDENT;
 
@@ -99,7 +102,11 @@ class_body : PASS NEWLINE | (var_def | func_def)+;
 
 func_def : DEF ID PAR_IZQ (typed_var (COMMA typed_var)*)? PAR_DER (EJECUTA type)? DOS_PUNTOS NEWLINE INDENT func_body DEDENT;
 
-func_body : (global_decl | nonlocal_decl | var_def | func_def )* stmt+;
+func_body : global_decl func_body
+    | nonlocal_decl func_body
+    | var_def func_body
+    | func_def func_body
+    | stmt+;
 
 typed_var : ID DOS_PUNTOS type;
 
@@ -133,32 +140,41 @@ literal : NONE
     | IDSTRING
     | STRING;
 
-expr : cexpr
-    | NOT expr
-    | expr (AND | OR) expr
-    | expr IF expr ELSE expr
+expr : expr_or IF expr_or ELSE expr
+    | expr_or;
+
+expr_or : expr_or OR expr_and
+    | expr_and;
+
+expr_and : expr_and AND simple_expr
+    | simple_expr;
+
+simple_expr: cexpr
+    | NOT simple_expr;
+
+cexpr : cexpr cmp cexpr_sum
+    | cexpr_sum;
+
+cexpr_sum : cexpr_sum op_suma cexpr_mul
+    | cexpr_mul;
+
+cexpr_mul : cexpr_mul op_mul simple_value
+    | simple_value;
+
+simple_value  : ID
+    | literal
     | LEN PAR_IZQ expr PAR_DER
     | INPUT PAR_IZQ PAR_DER
-    ;
-
-cexpr : ID
-    | literal
+    | simple_value PUNTO ID
+    | simple_value PUNTO ID PAR_IZQ (expr (COMMA expr)*)? PAR_DER
+    | simple_value COR_IZQ expr COR_DER
+    | MENOS simple_value
     | COR_IZQ (expr (COMMA expr)*)? COR_DER
     | PAR_IZQ expr PAR_DER
-    | cexpr PUNTO ID
-    | cexpr PUNTO ID PAR_IZQ (expr (COMMA expr)*)? PAR_DER
-    | cexpr COR_IZQ expr COR_DER
-    | ID PAR_IZQ (expr (COMMA expr)*)? PAR_DER
-    | cexpr bin_op cexpr
-    | MENOS cexpr
-    ;
+    | ID PAR_IZQ (expr (COMMA expr)*)? PAR_DER;
 
-bin_op : MAS
-    | MENOS
-    | MULTIPLICA
-    | DIV_ENTERA
-    | MODULO
-    | DOBLE_IGUAL
+
+cmp : DOBLE_IGUAL
     | DIFERENTE
     | MENOR_IGUAL
     | MAYOR_IGUAL
@@ -166,9 +182,16 @@ bin_op : MAS
     | MAYOR
     | IS;
 
+op_suma : MAS
+    | MENOS;
+
+op_mul : MULTIPLICA
+    | DIV_ENTERA
+    | MODULO;
+
 target : ID
-    | cexpr PUNTO ID
-    | cexpr COR_IZQ expr COR_DER;
+    | simple_value PUNTO ID
+    | simple_value COR_IZQ expr COR_DER;
 
 
 NOT : 'not';
