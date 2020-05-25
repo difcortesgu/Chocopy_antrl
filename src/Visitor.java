@@ -17,6 +17,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         symbolTables.put("program", program);
         callStack.push("program");
         symbolTable = symbolTables.get(callStack.peek());
+        symbolTable.put(".", new Record("program", null));
     }
 
     @Override
@@ -187,12 +188,18 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             return new Record("bool", true);
         if (ctx.getText().equals("False"))
             return new Record("bool", false);
-        if (ctx.IDSTRING()!= null)
-            return new Record("str", ctx.IDSTRING().getText());
+        if (ctx.IDSTRING()!= null){
+            Record r = new Record("str", ctx.IDSTRING().getText());
+            r.setValue(r.getValue().toString().replace("\"", ""));
+            return r;
+        }
         if (ctx.INTEGER()!= null)
             return new Record("int", Integer.parseInt(ctx.INTEGER().getText()));
-        if (ctx.STRING()!= null)
-            return new Record("str", ctx.STRING().getText());
+        if (ctx.STRING()!= null){
+            Record r = new Record("str", ctx.STRING().getText());
+            r.setValue(r.getValue().toString().replace("\"", ""));
+            return r;
+        }
         return null;
     }
 
@@ -799,6 +806,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         callStack.push(id.toString());
         symbolTables.put(id.toString(), new Hashtable<>());
         symbolTable = symbolTables.get(callStack.peek());
+        symbolTable.put(".", new Record("func", null));
 
         // Check if the parameters match
         for (int i = 0; i< ctxFunc.typed_var().size(); i++){
@@ -820,10 +828,14 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             }
         }
 
-        ///
-        symbolTable.put(".", new Record("func", null));
         Record func_body =  (Record) visitFunc_body(ctxFunc.func_body());
 
+        if(func_body == null){
+            // Set the scope to be outside of the function again
+            symbolTables.remove(callStack.pop());
+            symbolTable = symbolTables.get(callStack.peek());
+            return new Record("None", "None");
+        }
         if (ctxFunc.type() != null){
             String type = (String) ((Record) visitType(ctxFunc.type())).getValue();
             if (!func_body.getType().equals(type)){
@@ -939,7 +951,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
     //Search inside functions until it reaches a class or program
     public Record searchID(String id) {
         LinkedList<String> aux = new LinkedList<>();
-        while (isProgram() || isMethod()){
+        while (isProgram() || isMethod() || isFunction()){
             //update symbol table
             String st_id = callStack.pop();
             aux.add(st_id);
@@ -979,8 +991,8 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
 
     //check if you're inside method in a class
     public boolean isMethod(){
+        if (callStack.size()<2) return false;
         String aux = callStack.pop();
-        if (callStack.isEmpty()) return false;
         Hashtable<String, Record> st = symbolTables.get(callStack.peek());
         if (st.get(".").getType().equals("class")){
             callStack.push(aux);
@@ -998,6 +1010,10 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
     //Checks if you've reached the top-level context
     public boolean isProgram(){
         return !callStack.isEmpty() && symbolTables.get(callStack.peek()).get(".").getType().equals("program");
+    }
+
+    public boolean isFunction(){
+        return !callStack.isEmpty() && symbolTables.get(callStack.peek()).get(".").getType().equals("func");
     }
 
     @Override
