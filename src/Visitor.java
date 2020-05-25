@@ -43,17 +43,17 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         return null;
     }
     
-    @Override
+    @Override//REVISAR
     public Object visitSimple_stmt(ChocopyParser.Simple_stmtContext ctx) {
         if(ctx.PASS() != null){
             //pass
-            return new Record("None", "pass");
+            return null;
         }
         if(ctx.RETURN() != null){
             if(ctx.expr() != null){
                 return visitExpr(ctx.expr());
             }
-            return new Record("None", "");
+            return new Record("None", "None");
         }
         if(ctx.PRINT() != null){
             Record r = (Record) visitExpr(ctx.expr());
@@ -448,46 +448,88 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         return null;
     }
 
-
     //-------------------------------------------------------------------------------------
     //-------------------------------------------------------------------------------------
     //-------------------------------------------------------------------------------------
     //-------------------------------------------------------------------------------------
-
-    @Override
-    public Object visitVar_def(ChocopyParser.Var_defContext ctx){
-        String varName = ctx.typed_var().ID().getText();
-        if (symbolTable.containsKey(varName)){
-            System.err.println("La variable " + varName + " ya fue declarada");
-            System.exit(1);
-        }
-        Record literal = (Record)visitLiteral(ctx.literal());
-        Record type = (Record) visitType(ctx.typed_var().type());
-
-        if (!(literal.getType().equals(type.getValue()))){
-            if(!(literal.getValue().equals("None")&& ctx.typed_var().type().COR_DER()!=null)) {
-                System.err.println("No se puede asignar un " + type.getValue() + " a una variable " + literal.getType());
-                System.exit(1);
-            }
-        }
-
-        Record var = new Record((String) type.getValue(), literal.getValue());
-        symbolTable.put(varName, var);
-        return  null;
-    }
 
     @Override
     public Object visitTarget(ChocopyParser.TargetContext ctx) {
         if(ctx.ID() !=  null){
-            Record r = new Record("str", ctx.ID().getText());
-            r.addTrace(new Tupla("id", ctx.ID().getText()));
+            Record r;
+            String varName = ctx.ID().getText();
+            if ( isClass_() ){
+                r = searchClassMember(varName);
+                if (r == null){
+                    System.err.println("El atributo " + varName + " no ha sido declarado");
+                    System.exit(1);
+                }
+            }
+            else{
+                r = searchID(varName);
+                if (r == null){
+                    System.err.println("La variable " + varName + " no ha sido declarada");
+                    System.exit(1);
+                }
+            }
+            if (r.getType().equals("func") || r.getType().equals("class")){
+                System.err.println(varName +" no una variable");
+                System.exit(1);
+            }
+
+            r.addTrace(new Tupla("id",varName));
             return r;
         }
         if(ctx.PUNTO() != null){
-            // Record r = (Record) visitSimple_value(ctx.simple_value());
-            // r.addTrace(new Tupla("member", ctx.ID().getText()));
-            // return r;
-            return null;
+            Record r = (Record) visitSimple_value(ctx.simple_value());
+
+            if (!symbolTables.get("program").containsKey(r.getType())){
+                System.err.println("No se encontro el tipo de dato \"" + r.getType() + "\"");
+                System.exit(1);
+            }
+
+            if (!symbolTables.get("program").get(r.getType()).getType().equals("class")) {
+                System.err.println("La expresion \"" + ctx.simple_value().getText() + "\" no retorna una clase");
+                System.exit(1);
+            }
+
+            ChocopyParser.Class_defContext ctxClass = (ChocopyParser.Class_defContext) symbolTables.get("program").get(r.getType()).getValue();
+
+            String id = UUID.randomUUID().toString();
+            callStack.push(id);
+            symbolTables.put(id, new Hashtable<>());
+
+            String id1 = id;
+            String parent;
+
+            do{
+                symbolTable = symbolTables.get(id1);
+                parent = ctxClass.ID(1).getText();
+                symbolTable.put(".", new Record("class", null));
+                symbolTable.put("self", new Record(ctxClass.ID(0).getText(), id1));
+
+                visitClass_body(ctxClass.class_body());
+                id1 = UUID.randomUUID().toString();
+                symbolTables.put(id1, new Hashtable<>());
+                symbolTable.put("super", new Record(parent, id1));
+            } while (!parent.equals("object"));
+
+            symbolTables.remove(id1);
+            symbolTable.get("super").setValue(null);
+            symbolTable = symbolTables.get(id);
+
+            // SIMPLE_VALUE . ID
+
+            Record r2 = searchClassMember(ctx.ID().getText());
+            if (r2 == null){
+                System.err.println("El atributo " + ctx.ID().getText() + " no ha sido declarado");
+                System.exit(1);
+            }
+            callStack.pop();
+            symbolTable = symbolTables.get(callStack.peek());
+
+            r2.addTrace(new Tupla("member", ctx.ID().getText()));
+            return r2;
         }
         if(ctx.COR_IZQ() != null){
             Record r = (Record) visitSimple_value(ctx.simple_value());
@@ -531,28 +573,66 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
     @Override
     public Object visitSimple_value(ChocopyParser.Simple_valueContext ctx) {
         if (ctx.ID() !=  null){
+
             if (ctx.PUNTO() !=  null){
-        /*
-                Record r = (Record) visitCexpr(ctx.cexpr(0));
-                ChocopyParser.Class_defContext ctxClass = (ChocopyParser.Class_defContext) symbolTable.get(r.getType()).getValue();
-                UUID id = UUID.randomUUID();
-                callStack.push(id.toString());
-                symbolTables.put(id.toString(), new Hashtable<String, Record>());
-                symbolTable = symbolTables.get(callStack.peek());
+
+                Record r = (Record) visitSimple_value(ctx.simple_value());
+
+                if (!symbolTables.get("program").containsKey(r.getType())){
+                    System.err.println("No se encontro el tipo de dato \"" + r.getType() + "\"");
+                    System.exit(1);
+                }
+
+                if (!symbolTables.get("program").get(r.getType()).getType().equals("class")) {
+                    System.err.println("La expresion \"" + ctx.simple_value().getText() + "\" no retorna una clase");
+                    System.exit(1);
+                }
+
+                ChocopyParser.Class_defContext ctxClass = (ChocopyParser.Class_defContext) symbolTables.get("program").get(r.getType()).getValue();
+
+                String id = UUID.randomUUID().toString();
+                callStack.push(id);
+                symbolTables.put(id, new Hashtable<>());
+
+                String id1 = id;
+                String parent;
+
+                do{
+                    symbolTable = symbolTables.get(id1);
+                    parent = ctxClass.ID(1).getText();
+                    symbolTable.put(".", new Record("class", null));
+                    symbolTable.put("self", new Record(ctxClass.ID(0).getText(), id1));
+
+                    visitClass_body(ctxClass.class_body());
+                    id1 = UUID.randomUUID().toString();
+                    symbolTables.put(id1, new Hashtable<>());
+                    symbolTable.put("super", new Record(parent, id1));
+                } while (!parent.equals("object"));
+
+                symbolTables.remove(id1);
+                symbolTable.get("super").setValue(null);
+                symbolTable = symbolTables.get(id);
+
                 if (ctx.PAR_IZQ() !=  null){
                     // SIMPLE_VALUE . ID ( EXPR ... )
                     Record result = (Record) func_eval(ctx);
-                    symbolTable = callStack.peek();
+                    callStack.pop();
+                    symbolTable = symbolTables.get(callStack.peek());
                     return result;
                 }
 
                 // SIMPLE_VALUE . ID
-                // por aca toca guardar el trace
-                Record r1 = symbolTable.get(ctx.ID().getText());
-                symbolTable = callStack.peek();
-                return r1;
-         */
-                return null;
+
+                Record r2 = searchClassMember(ctx.ID().getText());
+                if (r2 == null){
+                    System.err.println("El atributo " + ctx.ID().getText() + " no ha sido declarado");
+                    System.exit(1);
+                }
+                callStack.pop();
+                symbolTable = symbolTables.get(callStack.peek());
+
+                r2.addTrace(new Tupla("member", ctx.ID().getText()));
+                return r2;
             }
 
             if (ctx.PAR_IZQ() !=  null){
@@ -561,18 +641,29 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             }
 
             // ID
+            Record r;
             String varName = ctx.ID().getText();
-            if (! symbolTable.containsKey(varName)){
-                System.err.println("La variable " + varName + " no ha sido inicializada");
+            if ( isClass_() ){
+                r = searchClassMember(varName);
+                if (r == null){
+                    System.err.println("El atributo " + varName + " no ha sido declarado");
+                    System.exit(1);
+                }
+            }
+            else{
+                r = searchID(varName);
+                if (r == null){
+                    System.err.println("La variable " + varName + " no ha sido declarada");
+                    System.exit(1);
+                }
+            }
+            if (r.getType().equals("func") || r.getType().equals("class")){
+                System.err.println(varName +" no una variable");
                 System.exit(1);
             }
-            if (symbolTable.get(varName).getType().equals("func")){
-                System.err.println("El simbolo "+ varName +" es una funcion, no una variable");
-                System.exit(1);
-            }
-            Record temp = symbolTable.get(varName);
-            temp.addTrace(new Tupla("id",varName));
-            return symbolTable.get(varName);
+
+            r.addTrace(new Tupla("id",varName));
+            return r;
         }
 
         if (ctx.COR_IZQ() != null){
@@ -646,44 +737,12 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
     }
 
     @Override
-    public Object visitClass_def(ChocopyParser.Class_defContext ctx) {
-        String className = ctx.ID(0).getText();
-        String parentName = ctx.ID(1).getText();
-
-        if (symbolTable.containsKey(className)){
-            System.err.println("La clase " + className + " ya fue definida");
-            System.exit(1);
-        }
-        if (!symbolTable.containsKey(parentName)){
-            System.err.println("La clase " + parentName + " no ha sido definida");
-            System.exit(1);
-        }
-        Record new_class = new Record("class", ctx);
-        symbolTable.put(className, new_class);
-
-        return  null;
-    }
-
-    @Override
-    public Object visitFunc_def(ChocopyParser.Func_defContext ctx) {
-        String funcName = ctx.ID().getText();
-        if (symbolTable.containsKey(funcName)){
-            System.err.println("La funcion " + funcName + " ya fue declarada");
-            System.exit(1);
-        }
-        Record func = new Record("func", ctx);
-        symbolTable.put(funcName, func);
-        symbolTables.put(funcName, new Hashtable<>());
-        return  null;
-    }
-
-    @Override
     public Object visitFunc_body(ChocopyParser.Func_bodyContext ctx) {
 
         if (!ctx.stmt().isEmpty()){
             for (int i = 0; i < ctx.stmt().size(); i++) {
                 Record r = (Record) visitStmt(ctx.stmt(i));
-                if (r != null && !r.getValue().equals("")) {
+                if (r != null) {
                     return r;
                 }
             }
@@ -708,21 +767,32 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
     }
 
     public Object func_eval(ChocopyParser.Simple_valueContext ctx){
-
         String funcName = ctx.ID().getText();
-        if (!symbolTable.containsKey(funcName)){//cambiar
-            System.err.println("La funcion " + funcName + " no ha sido declarada");
-            System.exit(1);
+        Record r;
+        if ( isClass_() ){
+            //IMPORTANTE: el ultimo valor del stack debe ser la instancia de la clase
+            r = searchClassMember(funcName);
+            if (r == null){
+                System.err.println("El metodo " + funcName + " no ha sido declarado");
+                System.exit(1);
+            }
+        }
+        else{
+            //IMPORTANTE: el ultimo valor del stack debe ser la instancia de la funcion anidada
+            r = searchID(funcName);
+            if (r == null){
+                System.err.println("La funcion " + funcName + " no ha sido declarada");
+                System.exit(1);
+            }
         }
 
-        if (!symbolTable.get(funcName).getType().equals("func")){
+        if (!r.getType().equals("func")){
             System.err.println("La variable " + funcName + " no es una funcion");
             System.exit(1);
         }
 
         //Get the context of the function
-        Record record = symbolTable.get(funcName);
-        ChocopyParser.Func_defContext ctxFunc = (ChocopyParser.Func_defContext) record.getValue();
+        ChocopyParser.Func_defContext ctxFunc = (ChocopyParser.Func_defContext) r.getValue();
 
         // Set the scope to be inside of the function
         UUID id = UUID.randomUUID();
@@ -750,6 +820,8 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             }
         }
 
+        ///
+        symbolTable.put(".", new Record("func", null));
         Record func_body =  (Record) visitFunc_body(ctxFunc.func_body());
 
         if (ctxFunc.type() != null){
@@ -765,40 +837,191 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         return func_body;
     }
 
+    @Override
+    public Object visitFunc_def(ChocopyParser.Func_defContext ctx) {
+        String funcName = ctx.ID().getText();
 
-    //-----------------------------------------------------------
-    //-----------------------------------------------------------
-    //-----------------------------------------------------------
-    //-----------------------------------------------------------
-    //-----------------------------------------------------------
+        if ( isClass_() ){
+            if (searchClassMember(funcName) != null){
+                System.err.println("El metodo " + funcName + " ya fue declarado");
+                System.exit(1);
+            }
+        }
+        else{
+            if (searchID(funcName) != null){
+                System.err.println("La funcion " + funcName + " ya fue declarada");
+                System.exit(1);
+            }
+        }
 
-    //Search inside functions that aren't inside a class
-    public Record searchID(String id){}
+        Record func = new Record("func", ctx);
+        symbolTable.put(funcName, func);
+        return  null;
+    }
 
-    //Search until it reaches a class
-    public Record searchIDinMethod(){}
+    @Override
+    public Object visitVar_def(ChocopyParser.Var_defContext ctx){
+        String varName = ctx.typed_var().ID().getText();
+        if ( isClass_() ){
+            if (searchClassMember(varName) != null){
+                System.err.println("El atributo " + varName + " ya fue declarado");
+                System.exit(1);
+            }
+        }
+        else{
+            if (searchID(varName) != null){
+                System.err.println("La variable " + varName + " ya fue declarada");
+                System.exit(1);
+            }
+        }
+
+        Record literal = (Record)visitLiteral(ctx.literal());
+        Record type = (Record) visitType(ctx.typed_var().type());
+
+        if (!literal.getType().equals(type.getValue()) && !literal.getValue().equals("None")){
+                System.err.println("No se puede asignar un " + type.getValue() + " a una variable " + literal.getType());
+                System.exit(1);
+        }
+
+        Record var = new Record((String) type.getValue(), literal.getValue());
+        symbolTable.put(varName, var);
+        return  null;
+    }
+
+    @Override
+    public Object visitClass_body(ChocopyParser.Class_bodyContext ctx) {
+        if (ctx.PASS() != null){
+            return null;
+        }
+        if (ctx.class_body_def() != null){
+            return visitClass_body_def(ctx.class_body_def());
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitClass_body_def(ChocopyParser.Class_body_defContext ctx) {
+        if (ctx.var_def() != null){
+            if (ctx.class_body_def() != null){
+                visitVar_def(ctx.var_def());
+                return visitClass_body_def(ctx.class_body_def());
+            }
+            return visitVar_def(ctx.var_def());
+        }
+        if (ctx.func_def() != null){
+            if (ctx.class_body_def() != null){
+                visitFunc_def(ctx.func_def());
+                return visitClass_body_def(ctx.class_body_def());
+            }
+            return visitFunc_def(ctx.func_def());
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitClass_def(ChocopyParser.Class_defContext ctx) {
+        String className = ctx.ID(0).getText();
+        String parentName = ctx.ID(1).getText();
+
+        if (symbolTable.containsKey(className)){
+            System.err.println("La clase " + className + " ya fue definida");
+            System.exit(1);
+        }
+        if (!symbolTable.containsKey(parentName)){
+            System.err.println("La clase " + parentName + " no ha sido definida");
+            System.exit(1);
+        }
+        Record new_class = new Record("class", ctx);
+        symbolTable.put(className, new_class);
+        return  null;
+    }
+
+    //Search inside functions until it reaches a class or program
+    public Record searchID(String id) {
+        LinkedList<String> aux = new LinkedList<>();
+        while (isProgram() || isMethod()){
+            //update symbol table
+            String st_id = callStack.pop();
+            aux.add(st_id);
+            Hashtable<String, Record> st = symbolTables.get(st_id);
+
+            //search for id
+            if (st.containsKey(id)) {
+                while(!aux.isEmpty()){
+                    callStack.push(aux.remove());
+                }
+                return st.get(id);
+            }
+        }
+        while(!aux.isEmpty()){
+            callStack.push(aux.remove());
+        }
+        return null;
+    }
 
     //Search inside classes and its parents
-    public Record searchClassMember(){}
+    public Record searchClassMember(String id){
+        String st_id = callStack.peek();
+        Hashtable<String, Record> st;
+        while (st_id.equals("object")){
+            st = symbolTables.get(st_id);
 
-    public Record searchGlobal(){}
+            //search for id
+            if (st.containsKey(id)) {
+                return st.get(id);
+            }
 
-    public boolean isClass_(){}
+            //update symbol table
+            st_id = (String) st.get("super").getValue();
+        }
+        return null;
+    }
 
-    public boolean isFunc(){}
+    //check if you're inside method in a class
+    public boolean isMethod(){
+        String aux = callStack.pop();
+        if (callStack.isEmpty()) return false;
+        Hashtable<String, Record> st = symbolTables.get(callStack.peek());
+        if (st.get(".").getType().equals("class")){
+            callStack.push(aux);
+            return true;
+        }
+        callStack.push(aux);
+        return false;
+    }
+
+    //Checks if you've reached the class context
+    public boolean isClass_(){
+        return !callStack.isEmpty() && symbolTables.get(callStack.peek()).get(".").getType().equals("class");
+    }
 
     //Checks if you've reached the top-level context
-    public boolean isProgram(){}
+    public boolean isProgram(){
+        return !callStack.isEmpty() && symbolTables.get(callStack.peek()).get(".").getType().equals("program");
+    }
 
     @Override
     public Object visitGlobal_decl(ChocopyParser.Global_declContext ctx) {
-        return super.visitGlobal_decl(ctx);
-    }
+        Hashtable<String, Record> st = symbolTables.get("program");
 
-    public Record searchNonlocal(){}
+        //search for id
+        if (st.containsKey(ctx.ID().getText())) {
+            return st.get(ctx.ID().getText());
+        }
+        return null;
+    }
 
     @Override
     public Object visitNonlocal_decl(ChocopyParser.Nonlocal_declContext ctx) {
-        return super.visitNonlocal_decl(ctx);
+        String aux = callStack.pop();
+        Hashtable<String, Record> st = symbolTables.get(callStack.peek());
+
+        //search for id
+        if (  st.containsKey(ctx.ID().getText()) ) {
+            callStack.push(aux);
+            return st.get(ctx.ID().getText());
+        }
+        callStack.push(aux);
+        return null;
     }
 }

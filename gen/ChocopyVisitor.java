@@ -1,4 +1,4 @@
-// Generated from C:/Users/pinzo/Desktop/lenguajes_antlr/Chocopy_antrl/grammar\Chocopy.g4 by ANTLR 4.8
+// Generated from C:/Users/diego/Documents/Lenguajes/Chocopy_antrl/grammar\Chocopy.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -27,6 +27,12 @@ public interface ChocopyVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitClass_body(ChocopyParser.Class_bodyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ChocopyParser#class_body_def}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClass_body_def(ChocopyParser.Class_body_defContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ChocopyParser#func_def}.
 	 * @param ctx the parse tree

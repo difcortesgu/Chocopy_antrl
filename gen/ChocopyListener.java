@@ -1,4 +1,4 @@
-// Generated from C:/Users/pinzo/Desktop/lenguajes_antlr/Chocopy_antrl/grammar\Chocopy.g4 by ANTLR 4.8
+// Generated from C:/Users/diego/Documents/Lenguajes/Chocopy_antrl/grammar\Chocopy.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -36,6 +36,16 @@ public interface ChocopyListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitClass_body(ChocopyParser.Class_bodyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ChocopyParser#class_body_def}.
+	 * @param ctx the parse tree
+	 */
+	void enterClass_body_def(ChocopyParser.Class_body_defContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ChocopyParser#class_body_def}.
+	 * @param ctx the parse tree
+	 */
+	void exitClass_body_def(ChocopyParser.Class_body_defContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ChocopyParser#func_def}.
 	 * @param ctx the parse tree

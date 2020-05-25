@@ -1,4 +1,4 @@
-// Generated from C:/Users/pinzo/Desktop/lenguajes_antlr/Chocopy_antrl/grammar\Chocopy.g4 by ANTLR 4.8
+// Generated from C:/Users/diego/Documents/Lenguajes/Chocopy_antrl/grammar\Chocopy.g4 by ANTLR 4.8
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -46,6 +46,18 @@ public class ChocopyBaseListener implements ChocopyListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitClass_body(ChocopyParser.Class_bodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterClass_body_def(ChocopyParser.Class_body_defContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitClass_body_def(ChocopyParser.Class_body_defContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

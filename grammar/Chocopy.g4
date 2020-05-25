@@ -98,7 +98,13 @@ program : var_def program
 
 class_def : CLASS ID PAR_IZQ ID PAR_DER DOS_PUNTOS NEWLINE INDENT class_body DEDENT;
 
-class_body : PASS NEWLINE | (var_def | func_def)+;
+class_body : PASS NEWLINE
+    | class_body_def;
+
+class_body_def:  var_def class_body_def
+    | func_def class_body_def
+    | var_def
+    | func_def;
 
 func_def : DEF ID PAR_IZQ (typed_var (COMMA typed_var)*)? PAR_DER (EJECUTA type)? DOS_PUNTOS NEWLINE INDENT func_body DEDENT;
 
