@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class Record {
+public class Record{
 
     private String type;
     private Object value;
@@ -10,6 +10,12 @@ public class Record {
     public Record(String type, Object value) {
         this.type = type;
         this.value = value;
+        this.id = new ArrayList<>();
+    }
+
+    public Record(Record r) {
+        this.type = r.getType();
+        this.value = r.getValue();
         this.id = new ArrayList<>();
     }
 
