@@ -1,3 +1,5 @@
+import java.io.PrintStream;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Visitor extends ChocopyBaseVisitor<Object>{
@@ -57,7 +59,9 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             return new Record("None", "None");
         }
         if(ctx.PRINT() != null){
+
             Record r = (Record) visitExpr(ctx.expr());
+            //puede fallar
             if (r.getType().equals("None")){
                 System.err.println("No se puede imprimir una variable de tipo \"None\"");
                 System.exit(1);
@@ -65,7 +69,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             System.out.println(r.getValue());
             return null;
         }
-        if(ctx.target() !=  null){
+        if(ctx.target() !=  null) {
             //(target IGUAL)+ expr
             Record r1 = (Record) visitExpr(ctx.expr());
             //itera sobre todos los target y dependiendo del tipo de "operacion" y cambia el valor anidado de la tabla de simbolos
@@ -123,6 +127,11 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 System.err.println("La comparacion solo es valida entre booleanos, se recibio: \""+r.getType()+"\"");
                 System.exit(1);
             }
+            if((boolean) r.getValue()){
+                visitBlock(ctx.block(0));
+                return null;
+            }
+
             if(ctx.ELIF() != null){
                 for (int i = 1; i < ctx.expr().size(); i++) {
                     r = (Record) visitExpr(ctx.expr(i));
@@ -130,20 +139,17 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                         System.err.println("La comparacion solo es valida entre booleanos, se recibio: \""+r.getType()+"\"");
                         System.exit(1);
                     }
-                }
-            }
-            for (int i = 0; i < ctx.expr().size(); i++) {
-                r = (Record) visitExpr(ctx.expr(i));
-                if((boolean) r.getValue()){
-                    visitBlock(ctx.block(i));
-                    return null;
+                    if((boolean) r.getValue()){
+                        visitBlock(ctx.block(i));
+                        return null;
+                    }
                 }
             }
             if(ctx.ELSE() != null){
-                visitBlock(ctx.block(ctx.expr().size()-1));
+                visitBlock(ctx.block(ctx.expr().size()));
                 return null;
             }
-        return null;
+            return null;
         }
         if(ctx.WHILE() != null){
             //WHILE expr DOS_PUNTOS block
@@ -161,16 +167,32 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         if(ctx.FOR() != null){
             //FOR ID IN expr DOS_PUNTOS block;
             Record r = (Record) visitExpr(ctx.expr(0));
-            if (!r.getType().equals("list") || !r.getType().equals("str")){
+            if (!r.getType().equals("list") && !r.getType().equals("str")){
                 System.err.println("Solo es posible iterar sobre listas o strings, se recibio: \""+r.getType()+"\"");
                 System.exit(1);
             }
-            if(!symbolTable.containsKey(ctx.ID().getText())){
+            if(!symbolTable.containsKey(ctx.ID().getText())) {
                 System.err.println("La variable " + ctx.ID().getText() + " ya fue declarada");
                 System.exit(1);
             }
-            for (int i = 0; i < ctx.expr().size(); i++) {
-                visitBlock(ctx.block(0));
+            Record list_symbol = symbolTable.get(ctx.expr(0).getText());
+            if(list_symbol.getType().equals("str")) {
+                String values = (String) list_symbol.getValue();
+                for (int i = 0; i < values.length(); i++) {
+                    Record id = symbolTable.get(ctx.ID().getText());
+                    char value =  values.charAt(i);
+                    id.setValue(value);
+                    visitBlock(ctx.block(0));
+                }
+            }
+            else {
+                Object[] values = (Object[]) list_symbol.getValue();
+                for (int i = 0; i < values.length; i++) {
+                    Record id = symbolTable.get(ctx.ID().getText());
+                    Record value = (Record) values[i];
+                    id.setValue(value.getValue());
+                    visitBlock(ctx.block(0));
+                }
             }
             return null;
         }
@@ -300,7 +322,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 System.err.println("La operacion or solo es valida en booleanos, se recibio: \""+r1.getType()+"\", \""+r2.getType()+"\"");
                 System.exit(1);
             }
-            return (boolean) r1.getValue() || (boolean) r2.getValue();
+            return new Record("bool", (boolean) r1.getValue() || (boolean) r2.getValue());
         }
         return visitExpr_and(ctx.expr_and());
     }
@@ -315,7 +337,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 System.err.println("La operacion and solo es valida en booleanos, se recibio: \""+r1.getType()+"\", \""+r2.getType()+"\"");
                 System.exit(1);
             }
-            return (boolean) r1.getValue() && (boolean) r2.getValue();
+            return new Record("bool", (boolean) r1.getValue() && (boolean) r2.getValue());
         }
         return visitSimple_expr(ctx.simple_expr());
     }
@@ -399,16 +421,15 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             System.err.println("La operacion \""+op+"\" no esta permitida entre los tipos de datos "+r1.getType()+" y "+r2.getType());
             System.exit(1);
         }
-        if (r1.getValue().equals("None") || r2.getValue().equals("None")){
-            System.err.println("La operacion \""+op+"\" no esta permitida entre los tipos de datos \"None\"");
-            System.exit(1);
-        }
-
+//        if (r1.getValue().equals("None") || r2.getValue().equals("None")){
+//            System.err.println("La operacion \""+op+"\" no esta permitida entre los tipos de datos \"None\"");
+//            System.exit(1);
+//        }
 
         switch (op){
             case "+":
                 if (r1.getType().equals("int")){
-                    return new Record("int", (int) r1.getValue() + (int) r2.getValue());
+                    return new Record("int", (Integer) r1.getValue() + (Integer) r2.getValue());
                 }
                 else if (r1.getType().equals("str")){
                     return new Record("str", r1.getValue().toString() + r2.getValue().toString());
@@ -422,25 +443,25 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                     return  new Record("list", new_array);
                 }
             case "-":
-                return new Record("int", (int) r1.getValue() - (int) r2.getValue());
+                return new Record("int", (Integer) r1.getValue() - (Integer) r2.getValue());
             case "*":
-                return new Record("int", (int) r1.getValue() * (int) r2.getValue());
+                return new Record("int", (Integer) r1.getValue() * (Integer) r2.getValue());
             case "//":
                 if((int) r2.getValue() == 0){
                     System.err.println("No esta permitida la division entre 0");
                     System.exit(1);
                 }
-                return new Record("int", ((int) r1.getValue() - ((int) r1.getValue() % (int) r2.getValue())) / (int) r2.getValue());
+                return new Record("int", ((Integer) r1.getValue() - ((Integer) r1.getValue() % (Integer) r2.getValue())) / (Integer) r2.getValue());
             case "%":
                 if((int) r2.getValue() == 0){
                     System.err.println("No esta permitida la division entre 0");
                     System.exit(1);
                 }
-                return new Record("int", (int) r1.getValue() % (int) r2.getValue());
+                return new Record("int", (Integer) r1.getValue() % (Integer) r2.getValue());
             case "==":
                 // Esto puede fallar
                 return switch (r1.getType()) {
-                    case "int" -> new Record("bool", (int) r1.getValue() == (int) r2.getValue());
+                    case "int" -> new Record("bool", (Integer) r1.getValue() == (Integer) r2.getValue());
                     // case "str" -> new Record("bool", r1.getValue().equals(r2.getValue()));
                     case "bool" -> new Record("bool", (boolean) r1.getValue() == (boolean) r2.getValue());
                     default -> new Record("bool", r1.getValue().equals(r2.getValue()));
@@ -448,19 +469,19 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             case "!=":
                 // Esto puede fallar
                 return switch (r1.getType()) {
-                    case "int" -> new Record("bool", (int) r1.getValue() != (int) r2.getValue());
+                    case "int" -> new Record("bool", (Integer) r1.getValue() != (Integer) r2.getValue());
                     // case "str" -> new Record("bool", !(r1.getValue()).equals(r2.getValue()));
                     case "bool" -> new Record("bool", (boolean) r1.getValue() != (boolean) r2.getValue());
                     default -> new Record("bool", !r1.getValue().equals(r2.getValue()));
                 };
             case "<=":
-                return  new Record("bool", (int) r1.getValue() <= (int) r2.getValue());
+                return  new Record("bool", (Integer) r1.getValue() <= (Integer) r2.getValue());
             case ">=":
-                return  new Record("bool", (int) r1.getValue() >= (int) r2.getValue());
+                return  new Record("bool", (Integer) r1.getValue() >= (Integer) r2.getValue());
             case "<":
-                return  new Record("bool", (int) r1.getValue() < (int) r2.getValue());
+                return  new Record("bool", (Integer) r1.getValue() < (Integer) r2.getValue());
             case ">":
-                return  new Record("bool", (int) r1.getValue() > (int) r2.getValue());
+                return  new Record("bool", (Integer) r1.getValue() > (Integer) r2.getValue());
             case "is":
                 return  new Record("bool", r1.getValue() == r2.getValue());
         }
@@ -535,11 +556,15 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 System.err.println("La operacion [] no esta permitida para tipos de dato diferentes a \"str\", \"list\"");
                 System.exit(1);
             }
-            if (!i.getType().equals("int")){
+            else if (!i.getType().equals("int")){
                 System.err.println("El index debe ser de tipo \"int\"");
                 System.exit(1);
             }
-            if ((int) i.getValue() >= ((Object[]) r.getValue()).length){
+            else if (r.getValue().equals("None")){
+                System.err.println("El índice no se encuentra en el arreglo");
+                System.exit(1);
+            }
+            else if ((int) i.getValue() >= ((Object[]) r.getValue()).length){
                 System.err.println("El index no se encuentra en el arreglo");
                 System.exit(1);
             }
@@ -562,13 +587,15 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 System.err.println("La operacion not solo es valida en booleanos, se recibio: \""+r.getType()+"\"");
                 System.exit(1);
             }
-            return ! (boolean)((Record) visitSimple_expr(ctx.simple_expr())).getValue();
+            r.setValue(!(boolean)r.getValue());
+            return r;
         }
         return null;
     }
 
     @Override
     public Object visitSimple_value(ChocopyParser.Simple_valueContext ctx) {
+
         if (ctx.ID() !=  null){
 
             if (ctx.PUNTO() !=  null){
@@ -658,12 +685,16 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                     System.err.println("El index debe ser de tipo \"int\"");
                     System.exit(1);
                 }
-                if ((int) expr.getValue() < 0 || (int) expr.getValue() >= ((Object[]) cexpr.getValue()).length){
+                if ((int) expr.getValue() < 0 || (Integer) expr.getValue() >= ((Object[]) cexpr.getValue()).length){
+                    System.err.println("El index no se encuentra en el arreglo");
+                if (cexpr.getValue().equals("None")){
                     System.err.println("El index no se encuentra en el arreglo");
                     System.exit(1);
                 }
+                    System.exit(1);
+                }
                 cexpr.addTrace(new Tupla("index", expr.getValue()));
-                return ((Object[]) cexpr.getValue())[(int) expr.getValue()];
+                return ((Object[]) cexpr.getValue())[(Integer) expr.getValue()];
             }
             // [ EXPR ...]
             Object[] l = new Object[ctx.expr().size()];
@@ -709,7 +740,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 System.err.println("La operacion - no esta permitida para tipos de dato diferentes a \"int\"");
                 System.exit(1);
             }
-            cexpr.setValue(- (int)cexpr.getValue());
+            cexpr.setValue(- (Integer)cexpr.getValue());
             return cexpr;
         }
 
