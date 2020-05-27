@@ -78,20 +78,24 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                     System.err.println("No se puede asignar un valor a un resultado anonimo");
                     System.exit(1);
                 }
-                for (Tupla t : target.getTrace()) {
+                boolean change = true;
+                for (int j = 0; j < target.getTrace().size(); j++) {
                     //revisar esto
+                    Tupla t = (Tupla) target.getTrace().get(j);
                     switch (t.x) {
                         case "id" -> temp = symbolTable.get(t.y);
                         case "index" -> {
                             assert temp != null;
-                            Record r = (Record) ((Object[]) temp.getValue())[(Integer) t.y];
-                            temp.setValue(r.getValue());
-                            temp.setType(r.getType());
+                            if (temp.getType().equals("str")) {
+                                change = false;
+                                temp.setValue(((String) temp.getValue()).replace(((String) temp.getValue()).charAt((Integer) t.y), ((String) r1.getValue()).charAt(0)));
+                            }else{
+                                temp = (Record) ((Object[]) temp.getValue())[(Integer) t.y];
+                            }
                         }
                         case "member" -> {
                             assert temp != null;
-                            temp.setValue(symbolTables.get(temp.getValue()).get(t.y).getValue());
-                            temp.setType(symbolTables.get(temp.getValue()).get(t.y).getType());
+                            temp = symbolTables.get(temp.getValue()).get(t.y);
                         }
                     }
                 }
@@ -102,7 +106,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                         System.exit(1);
                     }
                 }
-                temp.setValue(r1.getValue());
+                if(change) temp.setValue(r1.getValue());
             }
             return null;
         }
@@ -186,9 +190,9 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             }
             else {
                 Object[] values = (Object[]) r.getValue();
-                for (int i = 0; i < values.length; i++) {
+                for (Object o : values) {
                     Record id = symbolTable.get(ctx.ID().getText());
-                    Record value = (Record) values[i];
+                    Record value = (Record) o;
                     id.setValue(value.getValue());
                     visitBlock(ctx.block(0));
                 }
@@ -495,31 +499,6 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
 
     @Override
     public Object visitTarget(ChocopyParser.TargetContext ctx) {
-        if(ctx.ID() !=  null){
-            Record r;
-            String varName = ctx.ID().getText();
-            if ( isClass_() ){
-                r = searchClassMember(varName);
-                if (r == null){
-                    System.err.println("El atributo " + varName + " no ha sido declarado");
-                    System.exit(1);
-                }
-            }
-            else{
-                r = searchID(varName);
-                if (r == null){
-                    System.err.println("La variable " + varName + " no ha sido declarada");
-                    System.exit(1);
-                }
-            }
-            if (r.getType().equals("func") || r.getType().equals("class")){
-                System.err.println(varName +" no una variable");
-                System.exit(1);
-            }
-
-            r.addTrace(new Tupla("id",varName));
-            return r;
-        }
         if(ctx.PUNTO() != null){
             Record r = (Record) visitSimple_value(ctx.simple_value());
 
@@ -545,9 +524,35 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             }
             callStack.pop();
             symbolTable = symbolTables.get(callStack.peek());
-
+            r2.setTrace(r.getTrace());
             r2.addTrace(new Tupla("member", ctx.ID().getText()));
             return r2;
+        }
+        if(ctx.ID() !=  null){
+            Record r;
+            String varName = ctx.ID().getText();
+            if ( isClass_() ){
+                r = searchClassMember(varName);
+                if (r == null){
+                    System.err.println("El atributo " + varName + " no ha sido declarado");
+                    System.exit(1);
+                }
+            }
+            else{
+                r = searchID(varName);
+                if (r == null){
+                    System.err.println("La variable " + varName + " no ha sido declarada");
+                    System.exit(1);
+                }
+            }
+            if (r.getType().equals("func") || r.getType().equals("class")){
+                System.err.println(varName +" no una variable");
+                System.exit(1);
+            }
+            var trace = new ArrayList<>();
+            trace.add(new Tupla("id",varName));
+            r.setTrace(trace);
+            return r;
         }
         if(ctx.COR_IZQ() != null){
             Record r = (Record) visitSimple_value(ctx.simple_value());
@@ -564,12 +569,27 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 System.err.println("El índice no se encuentra en el arreglo");
                 System.exit(1);
             }
-            else if ((int) i.getValue() >= ((Object[]) r.getValue()).length){
+            int len = 0;
+            if (r.getType().equals("list"))
+                len = ((Object[]) r.getValue()).length;
+            else if (r.getType().equals("str"))
+                len = ((String) r.getValue()).length();
+
+            if ((int) i.getValue() >= len){
                 System.err.println("El index no se encuentra en el arreglo");
                 System.exit(1);
             }
             r.addTrace(new Tupla("index", i.getValue()));
-            return r;
+            if (r.getType().equals("list")){
+                var r1 = (Record)((Object[]) r.getValue())[(Integer) i.getValue()];
+                r1.setTrace(r.getTrace());
+                return r1;
+            }
+            if (r.getType().equals("str")){
+                var r1 = new Record("str", ((String) r.getValue()).charAt((Integer) i.getValue()));
+                r1.setTrace(r.getTrace());
+                return r1;
+            }
         }
         return null;
     }
@@ -631,7 +651,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 }
                 callStack.pop();
                 symbolTable = symbolTables.get(callStack.peek());
-
+                r2.setTrace(r.getTrace());
                 r2.addTrace(new Tupla("member", ctx.ID().getText()));
                 return r2;
             }
@@ -663,7 +683,9 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 System.exit(1);
             }
 
-            r.addTrace(new Tupla("id",varName));
+            var trace = new ArrayList<>();
+            trace.add(new Tupla("id",varName));
+            r.setTrace(trace);
             return r;
         }
 
@@ -699,10 +721,16 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                     System.exit(1);
                 }
                 cexpr.addTrace(new Tupla("index", expr.getValue()));
-                if (cexpr.getType().equals("list"))
-                    return new Record("object", ((Object[]) cexpr.getValue())[(Integer) expr.getValue()]);
-                if (cexpr.getType().equals("str"))
-                    return new Record("str", ((String) cexpr.getValue()).charAt((Integer) expr.getValue()));
+                if (cexpr.getType().equals("list")){
+                    var r = (Record)((Object[]) cexpr.getValue())[(Integer) expr.getValue()];
+                    r.setTrace(cexpr.getTrace());
+                    return r;
+                }
+                if (cexpr.getType().equals("str")){
+                    var r = new Record("str", ((String) cexpr.getValue()).charAt((Integer) expr.getValue()));
+                    r.setTrace(cexpr.getTrace());
+                    return r;
+                }
             }
             // [ EXPR ...]
             Object[] l = new Object[ctx.expr().size()];

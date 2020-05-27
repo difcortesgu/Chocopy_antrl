@@ -1,11 +1,10 @@
 import java.util.ArrayList;
-import java.util.List;
 
 public class Record{
 
     private String type;
     private Object value;
-    private List<Tupla> id;
+    private ArrayList<Object> id;
 
     public Record(String type, Object value) {
         this.type = type;
@@ -35,11 +34,11 @@ public class Record{
         this.value = value;
     }
 
-    public List<Tupla> getTrace() {
+    public ArrayList<Object> getTrace() {
         return id;
     }
 
-    public void setTrace(List<Tupla> id) {
+    public void setTrace(ArrayList<Object> id) {
         this.id = id;
     }
 
