@@ -233,9 +233,8 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         if (ctx.ID()!= null){
             Record r = (Record) visitType(ctx.type());
             if (!symbolTable.containsKey(ctx.ID().getText())){
-                symbolTable.put(ctx.ID().getText(), new Record((String) r.getValue(), null));
+                return new Record((String) r.getValue(), ctx.ID().getText());
             }
-            return ctx.ID().getText();
         }
         return null;
     }
@@ -245,7 +244,9 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             return new Record("str", ctx.ID().getText());
         }
         if (ctx.IDSTRING()!= null){
-            return new Record("str", ctx.IDSTRING().getText());
+            Record r = new Record("str", ctx.IDSTRING().getText());
+            r.setValue(r.getValue().toString().replace("\"", ""));
+            return r;
         }
         if (ctx.COR_DER()!= null){
             return new Record("str", "list");
@@ -687,7 +688,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 Integer len = 0;
                 if (cexpr.getType().equals("list"))
                     len = ((Object[]) cexpr.getValue()).length;
-                else if (cexpr.getType().equals("list"))
+                else if (cexpr.getType().equals("str"))
                     len = ((String) cexpr.getValue()).length();
                 if ((int) expr.getValue() < 0 || (Integer) expr.getValue() >= len){
                     System.err.println("El index no se encuentra en el arreglo");
@@ -698,7 +699,10 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                     System.exit(1);
                 }
                 cexpr.addTrace(new Tupla("index", expr.getValue()));
-                return ((Object[]) cexpr.getValue())[(Integer) expr.getValue()];
+                if (cexpr.getType().equals("list"))
+                    return new Record("object", ((Object[]) cexpr.getValue())[(Integer) expr.getValue()]);
+                if (cexpr.getType().equals("str"))
+                    return new Record("str", ((String) cexpr.getValue()).charAt((Integer) expr.getValue()));
             }
             // [ EXPR ...]
             Object[] l = new Object[ctx.expr().size()];
@@ -869,24 +873,24 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 // Inside of this function params must be declared in the symbol table
                 try {
 
-                    String param = (String) visitTyped_var(ctxFunc.typed_var(i));
-                    if (isMethod() && param.equals("self")){
+                    Record param = (Record) visitTyped_var(ctxFunc.typed_var(i));
+                    if (isMethod() && param.getValue().equals("self")){
                         String aux = callStack.pop();
                         Record self = symbolTables.get(callStack.peek()).get("self");
                         callStack.push(aux);
-                        if (! self.getType().equals(symbolTable.get(param).getType())){
-                            System.err.println("El parametro "+ param +" debe ser de tipo \""+ symbolTable.get(param).getType() +"\" y se recibio \""+ self.getType() +"\"");
+                        if (! self.getType().equals(param.getType())){
+                            System.err.println("El parametro "+ param.getValue() +" debe ser de tipo \""+ param.getType() +"\" y se recibio \""+ self.getType() +"\"");
                             System.exit(1);
                         }
-                        symbolTable.get(param).setValue(self.getValue());
+                        symbolTable.put((String) param.getValue(), self);
                     }
                     else{
                         Record expr = (Record) visitExpr(expr_ctx.get(j));//REVISAR
-                        if (! expr.getType().equals(symbolTable.get(param).getType())){
-                            System.err.println("El parametro "+ param +" debe ser de tipo \""+ symbolTable.get(param).getType() +"\" y se recibio \""+ expr.getType() +"\"");
+                        if (! expr.getType().equals(param.getType())){
+                            System.err.println("El parametro "+ param.getValue() +" debe ser de tipo \""+ param.getType() +"\" y se recibio \""+ expr.getType() +"\"");
                             System.exit(1);
                         }
-                        symbolTable.get(param).setValue(expr.getValue());
+                        symbolTable.put((String) param.getValue(), expr);
                         j++;
                     }
 
