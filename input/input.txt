@@ -1,16 +1,19 @@
-a:str = "Hello"
-b:str = "World"
-c:str = "ChocoPy"
+class A(object):
+    x:int = None
+    def __init__(self:A):
+        x = [1,2,3,4]
+        print("se instacio A")
+    def get_x(self:A):
+        print(self.x)
 
-def cat2(a:str, b:str) -> str:
-    return a + b
 
-def cat3(a:str, b:str, c:str) -> str:
-    return a + b + c
+class B(A):
+    y:int = 2
+    def __init__(self:B):
+        print("se instacio B")
+    def get_y(self:B):
+        print(self.y)
 
-print(cat2(a, b))
-print(cat2("", c))
-print(cat3(a, " ", c))
-print(len(a))
-print(len(cat2(a,a)))
-print(len(cat2("","")))
+b:B = None
+b = B()
+print(b.super.x[1])

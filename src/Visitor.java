@@ -1,5 +1,3 @@
-import java.io.PrintStream;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Visitor extends ChocopyBaseVisitor<Object>{
@@ -91,11 +89,13 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                             temp.setType(r.getType());
                         }
                         case "member" -> {
+                            assert temp != null;
                             temp.setValue(symbolTables.get(temp.getValue()).get(t.y).getValue());
                             temp.setType(symbolTables.get(temp.getValue()).get(t.y).getType());
                         }
                     }
                 }
+                assert temp != null;
                 if(!temp.getType().equals(r1.getType()) && !r1.getType().equals("None")){
                     if(!symbolTables.get("program").containsKey(temp.getType()) || !symbolTables.get("program").containsKey(r1.getType()) || !inherits(temp, r1)){
                         System.err.println("Los tipos de datos \"" + temp.getType() + "\" y \"" + r1.getType() + "\" no coinciden");
@@ -187,9 +187,9 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             }
             else {
                 Object[] values = (Object[]) list_symbol.getValue();
-                for (int i = 0; i < values.length; i++) {
+                for (Object o : values) {
                     Record id = symbolTable.get(ctx.ID().getText());
-                    Record value = (Record) values[i];
+                    Record value = (Record) o;
                     id.setValue(value.getValue());
                     visitBlock(ctx.block(0));
                 }
@@ -461,7 +461,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             case "==":
                 // Esto puede fallar
                 return switch (r1.getType()) {
-                    case "int" -> new Record("bool", (Integer) r1.getValue() == (Integer) r2.getValue());
+                    case "int" -> new Record("bool", ((Integer) r1.getValue()).equals((Integer) r2.getValue()));
                     // case "str" -> new Record("bool", r1.getValue().equals(r2.getValue()));
                     case "bool" -> new Record("bool", (boolean) r1.getValue() == (boolean) r2.getValue());
                     default -> new Record("bool", r1.getValue().equals(r2.getValue()));
@@ -469,7 +469,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             case "!=":
                 // Esto puede fallar
                 return switch (r1.getType()) {
-                    case "int" -> new Record("bool", (Integer) r1.getValue() != (Integer) r2.getValue());
+                    case "int" -> new Record("bool", !((Integer) r1.getValue()).equals((Integer) r2.getValue()));
                     // case "str" -> new Record("bool", !(r1.getValue()).equals(r2.getValue()));
                     case "bool" -> new Record("bool", (boolean) r1.getValue() != (boolean) r2.getValue());
                     default -> new Record("bool", !r1.getValue().equals(r2.getValue()));
@@ -754,15 +754,6 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
 
     @Override
     public Object visitFunc_body(ChocopyParser.Func_bodyContext ctx) {
-
-        if (!ctx.stmt().isEmpty()){
-            for (int i = 0; i < ctx.stmt().size(); i++) {
-                Record r = (Record) visitStmt(ctx.stmt(i));
-                if (r != null) {
-                    return r;
-                }
-            }
-        }
         if (ctx.global_decl() != null){
             visitGlobal_decl(ctx.global_decl());
             return visitFunc_body(ctx.func_body());
@@ -778,6 +769,15 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         if (ctx.func_def() != null){
             visitFunc_def(ctx.func_def());
             return visitFunc_body(ctx.func_body());
+        }
+        if (!ctx.stmt().isEmpty()){
+            for (int i = 0; i < ctx.stmt().size(); i++) {
+                Record r = (Record) visitStmt(ctx.stmt(i));
+                if (r != null) {
+                    return r;
+                }
+            }
+            return null;
         }
         return null;
     }
@@ -845,8 +845,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             }while(!callStack.peek().equals("program"));
 
             return new Record(funcName, id);
-        }
-        if (r.getType().equals("func")){
+        }else if (r.getType().equals("func")){
             //Get the context of the function
             ChocopyParser.Func_defContext ctxFunc = (ChocopyParser.Func_defContext) r.getValue();
 
@@ -856,29 +855,36 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             symbolTables.put(id.toString(), new Hashtable<>());
             symbolTable = symbolTables.get(callStack.peek());
             symbolTable.put(".", new Record("func", null));
-            if (isMethod()){
-                String aux = callStack.pop();
-                Record self = symbolTables.get(callStack.peek()).get("self");
-                callStack.push(aux);
-                symbolTable.put("self", self);
-            }
+
             // Check if the parameters match
-            for (int i = 0, j = 0; i < ctxFunc.typed_var().size(); i++,j++){
+            if (isMethod() && ctxFunc.typed_var().size() < 1) {
+                System.err.println("El parametro self es obligatorio");
+                System.exit(1);
+            }
+            for (int i = 0, j = 0; i < ctxFunc.typed_var().size(); i++){
                 // Inside of this function params must be declared in the symbol table
                 try {
 
                     String param = (String) visitTyped_var(ctxFunc.typed_var(i));
-                    if(param.equals("self")){
-                        j--;
-                    }else{
+                    if (isMethod() && param.equals("self")){
+                        String aux = callStack.pop();
+                        Record self = symbolTables.get(callStack.peek()).get("self");
+                        callStack.push(aux);
+                        if (! self.getType().equals(symbolTable.get(param).getType())){
+                            System.err.println("El parametro "+ param +" debe ser de tipo \""+ symbolTable.get(param).getType() +"\" y se recibio \""+ self.getType() +"\"");
+                            System.exit(1);
+                        }
+                        symbolTable.get(param).setValue(self.getValue());
+                    }
+                    else{
                         Record expr = (Record) visitExpr(expr_ctx.get(j));//REVISAR
                         if (! expr.getType().equals(symbolTable.get(param).getType())){
                             System.err.println("El parametro "+ param +" debe ser de tipo \""+ symbolTable.get(param).getType() +"\" y se recibio \""+ expr.getType() +"\"");
                             System.exit(1);
                         }
                         symbolTable.get(param).setValue(expr.getValue());
+                        j++;
                     }
-
 
                 }catch (IndexOutOfBoundsException e){
                     System.err.println("El numero de parametros no coincide");
@@ -911,7 +917,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
         String funcName = ctx.ID().getText();
 
         if ( isClass_() ){
-            if (searchClassMember(funcName) != null){
+            if (searchClassMember(funcName) != null  && !funcName.equals("__init__")){
                 System.err.println("El metodo " + funcName + " ya fue declarado");
                 System.exit(1);
             }
@@ -1036,7 +1042,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             st = symbolTables.get(st_id);
 
             //search for id
-            if (st.containsKey(id)) {
+            if (st.containsKey(id) && !(!st_id.equals(callStack.peek()) && id.equals("__init__"))) {
                 return st.get(id);
             }
 
