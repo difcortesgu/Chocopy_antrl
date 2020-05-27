@@ -885,7 +885,12 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                         symbolTable.put((String) param.getValue(), self);
                     }
                     else{
-                        Record expr = (Record) visitExpr(expr_ctx.get(j));//REVISAR
+                        String aux = callStack.pop();
+                        symbolTable = symbolTables.get(callStack.peek());
+                        Record expr = (Record) visitExpr(expr_ctx.get(j));
+                        callStack.push(aux);
+                        symbolTable = symbolTables.get(callStack.peek());
+                        //REVISAR
                         if (! expr.getType().equals(param.getType())){
                             System.err.println("El parametro "+ param.getValue() +" debe ser de tipo \""+ param.getType() +"\" y se recibio \""+ expr.getType() +"\"");
                             System.exit(1);
