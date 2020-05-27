@@ -900,17 +900,19 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
 
             if(func_body == null){
                 callStack.pop();
+                symbolTable = symbolTables.get(callStack.peek());
                 return new Record("None", "None");
             }
             if (ctxFunc.type() != null){
                 String type = (String) ((Record) visitType(ctxFunc.type())).getValue();
-                if (!func_body.getType().equals(type)){
+                if (!func_body.getType().equals(type) && !func_body.getType().equals("None")){
                     System.err.println("La funcion \""+funcName+"\" debe retornar el tipo \""+type+"\" y se encontro el tipo \""+func_body.getType()+"\"");
                     System.exit(1);
                 }
             }
             // Set the scope to be outside of the function again
             callStack.pop();
+            symbolTable = symbolTables.get(callStack.peek());
             return  new Record(func_body);
         }
         return null;
@@ -1027,7 +1029,7 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
             //search for id
             if (st.containsKey(id)) {
                 while(!aux.isEmpty()){
-                    callStack.push(aux.remove());
+                    callStack.push(aux.removeLast());
                 }
                 return st.get(id);
             }
