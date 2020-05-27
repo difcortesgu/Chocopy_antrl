@@ -248,7 +248,9 @@ FALSE : 'False';
 INTEGER : [1-9][0-9]* | '0';
 ID 		: [a-zA-Z_][a-zA-Z0-9_]* ;
 IDSTRING: '"'[a-zA-Z][a-zA-Z0-9_]*'"' ;
-STRING: '"'[a-zA-Z0-9_ ]*'"' ; //Revisar
+STRING: '"'(ESC|.)*?'"' ; //Revisar
+fragment
+ESC : '\\"' | '\\\\';
 
 LINE_COMMENT 	: '#' ~[\r\n]* -> skip ;
 fragment SPACES

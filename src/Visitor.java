@@ -175,9 +175,8 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 System.err.println("La variable " + ctx.ID().getText() + " ya fue declarada");
                 System.exit(1);
             }
-            Record list_symbol = symbolTable.get(ctx.expr(0).getText());
-            if(list_symbol.getType().equals("str")) {
-                String values = (String) list_symbol.getValue();
+            if(r.getType().equals("str")) {
+                String values = (String) r.getValue();
                 for (int i = 0; i < values.length(); i++) {
                     Record id = symbolTable.get(ctx.ID().getText());
                     char value =  values.charAt(i);
@@ -186,10 +185,10 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                 }
             }
             else {
-                Object[] values = (Object[]) list_symbol.getValue();
-                for (Object o : values) {
+                Object[] values = (Object[]) r.getValue();
+                for (int i = 0; i < values.length; i++) {
                     Record id = symbolTable.get(ctx.ID().getText());
-                    Record value = (Record) o;
+                    Record value = (Record) values[i];
                     id.setValue(value.getValue());
                     visitBlock(ctx.block(0));
                 }
@@ -685,12 +684,17 @@ public class Visitor extends ChocopyBaseVisitor<Object>{
                     System.err.println("El index debe ser de tipo \"int\"");
                     System.exit(1);
                 }
-                if ((int) expr.getValue() < 0 || (Integer) expr.getValue() >= ((Object[]) cexpr.getValue()).length){
+                Integer len = 0;
+                if (cexpr.getType().equals("list"))
+                    len = ((Object[]) cexpr.getValue()).length;
+                else if (cexpr.getType().equals("list"))
+                    len = ((String) cexpr.getValue()).length();
+                if ((int) expr.getValue() < 0 || (Integer) expr.getValue() >= len){
                     System.err.println("El index no se encuentra en el arreglo");
-                if (cexpr.getValue().equals("None")){
-                    System.err.println("El index no se encuentra en el arreglo");
-                    System.exit(1);
-                }
+                    if (cexpr.getValue().equals("None")){
+                        System.err.println("El index no se encuentra en el arreglo");
+                        System.exit(1);
+                    }
                     System.exit(1);
                 }
                 cexpr.addTrace(new Tupla("index", expr.getValue()));
